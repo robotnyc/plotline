@@ -49,3 +49,4 @@ The repository is structured as an [Apps Script](https://developers.google.com/a
 4. Add tests to ensure user has enabled the appropriate scope. If not, display a description error message on the sidebar. Using error cards https://developers.google.com/workspace/add-ons/guides/workspace-best-practices#_use_error_cards .
 5. The timeline view only shows past revisions and does not show the current word count as of the current document.
 6. Add streaks feature to motivate writers. Show current streak, longest streak, and potentially a calendar with a heatmap of the days and the amount written.
+7. Add creation date of the document to the stats. As well as last modified date. Could use this to display an estimate of how long the user has been working on the document.
