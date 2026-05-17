@@ -7,6 +7,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+  <script src="https://apis.google.com/js/api.js"></script>
   <style>
     #result {
       margin-top: 15px;
@@ -262,22 +263,22 @@
 
     function render(data) {
       var goalHtml = '<div class="document-total" style="display: flex; align-items: center; justify-content: space-between;">' +
-                     '<span>Goal: <input type="number" id="goal-input" value="' + (data.goal || '') + '" onchange="saveGoal(this.value)" style="width: 80px;" title="Set total word count goal" /></span>' +
-                     '</div>';
+        '<span>Goal: <input type="number" id="goal-input" value="' + (data.goal || '') + '" onchange="saveGoal(this.value)" style="width: 80px;" title="Set total word count goal" /></span>' +
+        '</div>';
 
       var outlineHtml = goalHtml + '<div class="document-total">Total: ' + data.wordCount + ' words</div>';
 
       if (data.goal) {
-         var pct = Math.round((data.wordCount / data.goal) * 100);
-         var scale = pct > 100 ? (100 / pct) : 1;
-         var basePct = Math.min(100, pct) * scale;
-         var overflowPct = Math.max(0, pct - 100) * scale;
+        var pct = Math.round((data.wordCount / data.goal) * 100);
+        var scale = pct > 100 ? (100 / pct) : 1;
+        var basePct = Math.min(100, pct) * scale;
+        var overflowPct = Math.max(0, pct - 100) * scale;
 
-         var barHtml = '<div class="progress-bar" style="width: ' + basePct + '%"></div>';
-         if (overflowPct > 0) {
-           barHtml += '<div class="progress-bar-overflow" style="width: ' + overflowPct + '%"></div>';
-         }
-         outlineHtml += '<div class="progress-bar-container" style="margin: 0 12px 12px 12px; width: auto;" title="Goal: ' + Math.round(data.goal) + '">' + barHtml + '</div>';
+        var barHtml = '<div class="progress-bar" style="width: ' + basePct + '%"></div>';
+        if (overflowPct > 0) {
+          barHtml += '<div class="progress-bar-overflow" style="width: ' + overflowPct + '%"></div>';
+        }
+        outlineHtml += '<div class="progress-bar-container" style="margin: 0 12px 12px 12px; width: auto;" title="Goal: ' + Math.round(data.goal) + '">' + barHtml + '</div>';
       }
 
       if (data.headingWordCounts) {
@@ -376,9 +377,33 @@
       });
     }
 
+      function showPickerAuthorization() {
+        document.getElementById('result').innerHTML = `
+      <div style="text-align: center; margin-top: 20px;">
+        <p style="font-size: 13px; color: #3c4043; margin-bottom: 12px;">Google requires explicit permission to read this document's history.</p>
+        <button class="action" onclick="loadPicker()">Grant Access</button>
+      </div>
+    `;
+      }
+
+      function loadPicker() {
+        document.getElementById('result').innerHTML = `
+          <div style="text-align: center; margin-top: 20px;">
+            <p style="font-size: 13px; color: #3c4043; margin-bottom: 12px;">Please complete authorization in the popup dialog...</p>
+            <button class="action" onclick="onPickerAuthorized()">Refresh Timeline</button>
+          </div>
+        `;
+        google.script.run.openPickerModal();
+      }
+
+      function onPickerAuthorized() {
+        document.getElementById('result').innerHTML = '<div style="text-align: center; margin-top: 20px;"><p style="font-size: 13px; color: #3c4043;">Loading timeline...</p></div>';
+        fetchRevisionWordCounts();
+      }
+
     function pollRevisionWordCounts(attemptsLeft, previousCount) {
       clearError();
-      if (!document.getElementById('result').innerHTML.includes('canvas')) {
+      if (!document.getElementById('result').innerHTML.includes('canvas') && !document.getElementById('result').innerHTML.includes('Grant Access')) {
         document.getElementById('result').innerText = 'Loading...';
       }
       google.script.run
@@ -392,9 +417,13 @@
             }, 30000);
           }
         })
-        .withFailureHandler(function(error) {
+        .withFailureHandler(function (error) {
           document.getElementById('result').innerText = '';
-          showError(error);
+          if (error.message && error.message.includes("File not found")) {
+            showPickerAuthorization();
+          } else {
+            showError(error);
+          }
         })
         .fetchRevisionWordCounts();
     }
@@ -452,7 +481,7 @@
 
           trendsDiv.innerHTML = html;
         })
-        .withFailureHandler(function(error) {
+        .withFailureHandler(function (error) {
           trendsDiv.innerText = '';
           showError(error);
         })

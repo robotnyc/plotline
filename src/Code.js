@@ -12,12 +12,38 @@ function onOpen() {
   DocumentApp.getUi()
     .createMenu('Word Count Timeline')
     .addItem('Open sidebar', 'showSidebar')
+    .addItem('Simulate "File not found"', 'enableSimulation')
     .addToUi();
 }
 
 function showSidebar() {
   const html = HtmlService.createHtmlOutputFromFile('Sidebar')
     .setTitle('Word Count Timeline')
-    .setWidth(300);
+    .setWidth(300); // TODO sidebars can't be resized
   DocumentApp.getUi().showSidebar(html);
+}
+
+function getPickerData() {
+  return {
+    token: ScriptApp.getOAuthToken(),
+    fileId: DocumentApp.getActiveDocument().getId(),
+    developerKey: PropertiesService.getScriptProperties().getProperty('GOOGLE_CLOUD_API_KEY'),
+    appId: PropertiesService.getScriptProperties().getProperty('GOOGLE_CLOUD_PROJECT_NUMBER')
+  };
+}
+
+function openPickerModal() {
+  const html = HtmlService.createHtmlOutputFromFile('PickerModal')
+    .setWidth(800).setHeight(500);
+  DocumentApp.getUi().showModalDialog(html, 'Grant File Access');
+}
+
+function enableSimulation() {
+  PropertiesService.getScriptProperties().setProperty('SIMULATE_FILE_NOT_FOUND', 'true');
+  console.log('Simulation enabled.');
+}
+
+function disableSimulation() {
+  PropertiesService.getScriptProperties().deleteProperty('SIMULATE_FILE_NOT_FOUND');
+  console.log('Simulation disabled.');
 }

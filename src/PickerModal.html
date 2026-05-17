@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <base target="_top">
+  <script src="https://apis.google.com/js/api.js"></script>
+  <style>
+    body {
+      font-family: "Google Sans", Roboto, Helvetica, Arial, sans-serif;
+      margin: 20px;
+      text-align: center;
+      color: #3c4043;
+    }
+  </style>
+  <script>
+    function onPickerApiLoad() {
+      document.getElementById('status').innerText = 'Loading picker...';
+      google.script.run
+        .withSuccessHandler(createPicker)
+        .withFailureHandler(function (err) {
+          document.getElementById('status').innerText = 'Error loading config: ' + err.message;
+        })
+        .getPickerData();
+    }
+
+    function createPicker(config) {
+      if (!config.developerKey || !config.appId) {
+        document.getElementById('status').innerText = "Missing configuration. Please add GOOGLE_CLOUD_API_KEY and GOOGLE_CLOUD_PROJECT_NUMBER to the script properties.";
+        return;
+      }
+      var view = new google.picker.DocsView(google.picker.ViewId.DOCS);
+      if (view.setFileIds) {
+        view.setFileIds(config.fileId);
+      }
+      var picker = new google.picker.PickerBuilder()
+        .addView(view)
+        .setOAuthToken(config.token)
+        .setDeveloperKey(config.developerKey)
+        .setAppId(config.appId)
+        .setOrigin(google.script.host.origin)
+        .setSize(800, 500)
+        .setCallback(pickerCallback)
+        .build();
+      picker.setVisible(true);
+    }
+
+    function pickerCallback(data) {
+      if (data.action == google.picker.Action.PICKED) {
+        document.getElementById('status').innerText = 'Finalizing authorization...';
+        google.script.run
+          .withSuccessHandler(function () {
+            document.getElementById('status').innerText = 'Authorization successful! You can close this window.';
+            google.script.host.close();
+          })
+          .disableSimulation();
+      } else if (data.action == google.picker.Action.CANCEL) {
+        document.getElementById('status').innerText = 'Authorization cancelled. You can close this window.';
+      }
+    }
+
+    function loadPicker() {
+      gapi.load('picker', { 'callback': onPickerApiLoad });
+    }
+  </script>
+</head>
+
+<body onload="loadPicker()">
+  <div id="status">Starting authorization process...</div>
+</body>
+
+</html>

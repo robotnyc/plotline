@@ -109,6 +109,11 @@ function getHeadingWordCounts() {
  * @return {Array<Object>}
  */
 function fetchRevisions(fileId) {
+  // SIMULATE_FILE_NOT_FOUND is used to test the file not found error case. Google API's do not support revoking access to a file.
+  if (PropertiesService.getScriptProperties().getProperty('SIMULATE_FILE_NOT_FOUND') === 'true') {
+    console.log("fetchRevisions: Simulating file not found error.");
+    throw new Error("API call to drive.revisions.list failed with error: File not found: " + fileId);
+  }
   let allRevisions = [];
   let pageToken = null;
   do {
