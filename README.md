@@ -1,4 +1,4 @@
-# Word Count Timeline Google Docs Editor Add-on
+# Plotline Google Docs Editor Add-on
 
 ## Summary
 
@@ -6,7 +6,7 @@ Track your writing productivity in Google Docs™ with visualizations. See your 
 
 ## Description
 
-Support your writing process with Word Count Timeline, a free Google Docs™ add-on for tracking and visualizing your word count progress. Built to help writers, students, and professionals meet their goals, this tool provides powerful insights into your writing habits directly within your document.
+Support your writing process with Plotline, a free Google Docs™ add-on for tracking and visualizing your word count progress. Built to help writers, students, and professionals meet their goals, this tool provides powerful insights into your writing habits directly within your document.
 
 This add-on runs securely on Google's own Apps Script servers, ensuring your documents remain safe and private.
 
@@ -19,17 +19,17 @@ This add-on runs securely on Google's own Apps Script servers, ensuring your doc
 
 ## Usage
 
-1. Install the "Word Count Timeline" add-on from the Google Workspace Marketplace.
+1. Install the "Plotline" add-on from the Google Workspace Marketplace.
 2. Open a Google Doc and activate the add-on from the "Extensions" menu.
 3. The sidebar will instantly display your writing statistics.
-4. Take control of your writing and hit your targets with Word Count Timeline.
+4. Take control of your writing and hit your targets with Plotline.
 
 ## Development
 
 The repository is structured as an [Apps Script](https://developers.google.com/apps-script) project. You can manage it with [clasp](https://github.com/google/clasp) or directly from the Apps Script editor:
 
 1. Install [clasp](https://github.com/google/clasp#installation) and authenticate (`clasp login`).
-2. Run `clasp create --type docs --title "Word Count Timeline"` or clone an existing script if configured.
+2. Run `clasp create --type docs --title "Plotline"` or clone an existing script if configured.
 3. Push the local files with `clasp push`, then open the script in the online editor (`clasp open`).
 4. Use `onOpen` to add the menu and `showSidebar` to preview the sidebar UI.
 5. Real API implementations live in `Data.gs`.

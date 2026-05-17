@@ -10,7 +10,7 @@
 
 function onOpen() {
   DocumentApp.getUi()
-    .createMenu('Word Count Timeline')
+    .createMenu('Plotline')
     .addItem('Open sidebar', 'showSidebar')
     .addItem('Simulate "File not found"', 'enableSimulation')
     .addToUi();
@@ -18,7 +18,7 @@ function onOpen() {
 
 function showSidebar() {
   const html = HtmlService.createHtmlOutputFromFile('Sidebar')
-    .setTitle('Word Count Timeline')
+    .setTitle('Plotline')
     .setWidth(300); // TODO sidebars can't be resized
   DocumentApp.getUi().showSidebar(html);
 }
