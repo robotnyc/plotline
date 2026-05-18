@@ -20,7 +20,7 @@
         .withFailureHandler(function (err) {
           document.getElementById('status').innerText = 'Error loading config: ' + err.message;
         })
-        .getPickerData();
+        .getPickerConfig();
     }
 
     function createPicker(config) {
@@ -34,6 +34,10 @@
       }
       var picker = new google.picker.PickerBuilder()
         .addView(view)
+        // Hide the navigation panel so that Picker fills more of the dialog.
+        .enableFeature(google.picker.Feature.NAV_HIDDEN)
+        // Hide the title bar since an Apps Script dialog already has a title.
+        .hideTitleBar()
         .setOAuthToken(config.token)
         .setDeveloperKey(config.developerKey)
         .setAppId(config.appId)

@@ -23,7 +23,7 @@ function showSidebar() {
   DocumentApp.getUi().showSidebar(html);
 }
 
-function getPickerData() {
+function getPickerConfig() {
   return {
     token: ScriptApp.getOAuthToken(),
     fileId: DocumentApp.getActiveDocument().getId(),
