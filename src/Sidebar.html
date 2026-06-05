@@ -9,7 +9,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
   <script src="https://apis.google.com/js/api.js"></script>
   <style>
-    #result {
+    #timeline-container {
       margin-top: 15px;
       font-weight: bold;
     }
@@ -191,7 +191,7 @@
     function onLoad() {
       clearError();
       document.getElementById('outline-container').innerHTML = 'Checking authorization...';
-      document.getElementById('result').innerText = 'Checking authorization...';
+      document.getElementById('timeline-container').innerText = 'Checking authorization...';
 
       google.script.run
         .withSuccessHandler(function () {
@@ -200,7 +200,7 @@
         })
         .withFailureHandler(function (error) {
           document.getElementById('outline-container').innerHTML = 'Authorization required.';
-          document.getElementById('result').innerText = 'Authorization required.';
+          document.getElementById('timeline-container').innerText = 'Authorization required.';
           showError(error);
         })
         .checkAuthorization();
@@ -305,10 +305,10 @@
 
     function fetchWordCount() {
       clearError();
-      document.getElementById('result').innerText = 'Loading...';
+      document.getElementById('timeline-container').innerText = 'Loading...';
       google.script.run
         .withSuccessHandler(function (count) {
-          document.getElementById('result').innerText = 'Word count: ' + count;
+          document.getElementById('timeline-container').innerText = 'Word count: ' + count;
         })
         .withFailureHandler(showError)
         .getCurrentWordCount();
@@ -323,7 +323,7 @@
     }
 
     function renderTimelineChart(data) {
-      document.getElementById('result').innerHTML = '<canvas id="timelineChart"></canvas>';
+      document.getElementById('timeline-container').innerHTML = '<canvas id="timelineChart"></canvas>';
       var ctx = document.getElementById('timelineChart').getContext('2d');
 
       var labels = data.map(function (item) {
@@ -391,7 +391,7 @@
     }
 
       function showPickerAuthorization() {
-        document.getElementById('result').innerHTML = `
+        document.getElementById('timeline-container').innerHTML = `
       <div style="text-align: center; margin-top: 20px;">
         <p style="font-size: 13px; color: #3c4043; margin-bottom: 12px;">Google requires explicit permission to read this document's history.</p>
         <button class="action" onclick="loadPicker()">Grant Access</button>
@@ -400,7 +400,7 @@
       }
 
       function loadPicker() {
-        document.getElementById('result').innerHTML = `
+        document.getElementById('timeline-container').innerHTML = `
           <div style="text-align: center; margin-top: 20px;">
             <p style="font-size: 13px; color: #3c4043; margin-bottom: 12px;">Please complete authorization in the popup dialog then click Refresh Timeline...</p>
             <button class="action" onclick="onPickerAuthorized()">Refresh Timeline</button>
@@ -410,14 +410,14 @@
       }
 
       function onPickerAuthorized() {
-        document.getElementById('result').innerHTML = '<div style="text-align: center; margin-top: 20px;"><p style="font-size: 13px; color: #3c4043;">Loading timeline...</p></div>';
+        document.getElementById('timeline-container').innerHTML = '<div style="text-align: center; margin-top: 20px;"><p style="font-size: 13px; color: #3c4043;">Loading timeline...</p></div>';
         fetchRevisionWordCounts();
       }
 
     function pollRevisionWordCounts(attemptsLeft, previousCount) {
       clearError();
-      if (!document.getElementById('result').innerHTML.includes('canvas') && !document.getElementById('result').innerHTML.includes('Grant Access')) {
-        document.getElementById('result').innerText = 'Loading...';
+      if (!document.getElementById('timeline-container').innerHTML.includes('canvas') && !document.getElementById('timeline-container').innerHTML.includes('Grant Access')) {
+        document.getElementById('timeline-container').innerText = 'Loading...';
       }
       google.script.run
         .withSuccessHandler(function (data) {
@@ -431,7 +431,7 @@
           }
         })
         .withFailureHandler(function (error) {
-          document.getElementById('result').innerText = '';
+          document.getElementById('timeline-container').innerText = '';
           if (error.message && error.message.includes("File not found")) {
             showPickerAuthorization();
           } else {
@@ -447,7 +447,7 @@
 
     function refreshTrends() {
       clearError();
-      var trendsDiv = document.getElementById('result-trends');
+      var trendsDiv = document.getElementById('trends-container');
       trendsDiv.innerText = 'Loading...';
       google.script.run
         .withSuccessHandler(function (data) {
@@ -503,10 +503,10 @@
 
     function fetchHeadingWordCounts() {
       clearError();
-      document.getElementById('result').innerText = 'Loading...';
+      document.getElementById('timeline-container').innerText = 'Loading...';
       google.script.run
         .withSuccessHandler(function (data) {
-          document.getElementById('result').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+          document.getElementById('timeline-container').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
         })
         .withFailureHandler(showError)
         .getHeadingWordCounts();
@@ -532,14 +532,14 @@
           <button class="action" onclick="fetchRevisionWordCounts()" title="Refresh timeline" style="margin-right: 12px; margin-left: 8px;">Refresh</button>
         </div>
       </div>
-      <div class="block" id="result"></div>
+      <div class="block" id="timeline-container"></div>
     </div>
 
     <div style="display: flex; align-items: center; justify-content: space-between;">
       <h1>Trend</h1>
       <button class="action" onclick="refreshTrends()" title="Refresh trends" style="margin-right: 12px;">Refresh</button>
     </div>
-    <div class="block" id="result-trends"></div>
+    <div class="block" id="trends-container"></div>
   </div>
 </body>
 
