@@ -298,17 +298,6 @@
       }
     }
 
-    function fetchWordCount() {
-      clearError();
-      document.getElementById('timeline-container').innerText = 'Loading...';
-      google.script.run
-        .withSuccessHandler(function (count) {
-          document.getElementById('timeline-container').innerText = 'Word count: ' + count;
-        })
-        .withFailureHandler(showError)
-        .getCurrentWordCount();
-    }
-
     let timelineChart = null;
 
     function resetZoom() {
