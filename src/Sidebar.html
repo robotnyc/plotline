@@ -431,10 +431,10 @@
           }
         })
         .withFailureHandler(function (error) {
-          document.getElementById('timeline-container').innerText = '';
           if (error.message && error.message.includes("File not found")) {
             showPickerAuthorization();
           } else {
+            document.getElementById('timeline-container').innerText = 'Grant permission then click Refresh.';
             showError(error);
           }
         })
