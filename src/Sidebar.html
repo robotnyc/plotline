@@ -199,8 +199,8 @@
           pollRevisionWordCounts(3, -1);
         })
         .withFailureHandler(function (error) {
-          document.getElementById('outline-container').innerHTML = 'Authorization required.';
-          document.getElementById('timeline-container').innerText = 'Authorization required.';
+          document.getElementById('outline-container').innerHTML = 'Grant permission then click Refresh.';
+          document.getElementById('timeline-container').innerText = 'Grant permission then click Refresh.';
           showError(error);
         })
         .checkAuthorization();
@@ -402,7 +402,7 @@
       function loadPicker() {
         document.getElementById('timeline-container').innerHTML = `
           <div style="text-align: center; margin-top: 20px;">
-            <p style="font-size: 13px; color: #3c4043; margin-bottom: 12px;">Please complete authorization in the popup dialog then click Refresh Timeline...</p>
+            <p style="font-size: 13px; color: #3c4043; margin-bottom: 12px;">Grant permission then click Refresh</p>
             <button class="action" onclick="onPickerAuthorized()">Refresh Timeline</button>
           </div>
         `;
