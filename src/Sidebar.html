@@ -195,7 +195,7 @@
         })
         .withFailureHandler(function (error) {
           document.getElementById('outline-container').innerHTML = 'Grant permission then click <b>Refresh</b>.';
-          document.getElementById('timeline-container').innerText = 'Grant permission then click <b>Refresh</b>.';
+          document.getElementById('timeline-container').innerHTML = 'Grant permission then click <b>Refresh</b>.';
           showError(error);
         })
         .checkAuthorization();
