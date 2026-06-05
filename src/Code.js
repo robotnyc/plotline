@@ -47,3 +47,15 @@ function disableSimulation() {
   PropertiesService.getScriptProperties().deleteProperty('SIMULATE_FILE_NOT_FOUND');
   console.log('Simulation disabled.');
 }
+
+/**
+ * Verifies if the script has authorization to run and access DocumentApp.
+ * This runs on sidebar load to trigger Google's authorization prompt once
+ * before parallel execution of other functions.
+ * @returns {boolean}
+ */
+function checkAuthorization() {
+  DocumentApp.getActiveDocument();
+  return true;
+}
+

@@ -189,8 +189,21 @@
     }
 
     function onLoad() {
-      refreshOutline();
-      pollRevisionWordCounts(3, -1);
+      clearError();
+      document.getElementById('outline-container').innerHTML = 'Checking authorization...';
+      document.getElementById('result').innerText = 'Checking authorization...';
+
+      google.script.run
+        .withSuccessHandler(function () {
+          refreshOutline();
+          pollRevisionWordCounts(3, -1);
+        })
+        .withFailureHandler(function (error) {
+          document.getElementById('outline-container').innerHTML = 'Authorization required.';
+          document.getElementById('result').innerText = 'Authorization required.';
+          showError(error);
+        })
+        .checkAuthorization();
     }
 
     function saveGoal(value) {
