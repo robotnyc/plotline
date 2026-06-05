@@ -9,11 +9,6 @@
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
   <script src="https://apis.google.com/js/api.js"></script>
   <style>
-    #timeline-container {
-      margin-top: 15px;
-      font-weight: bold;
-    }
-
     .branding-below {
       bottom: 56px;
       top: 0;
@@ -199,8 +194,8 @@
           pollRevisionWordCounts(3, -1);
         })
         .withFailureHandler(function (error) {
-          document.getElementById('outline-container').innerHTML = 'Grant permission then click Refresh.';
-          document.getElementById('timeline-container').innerText = 'Grant permission then click Refresh.';
+          document.getElementById('outline-container').innerHTML = 'Grant permission then click <b>Refresh</b>.';
+          document.getElementById('timeline-container').innerText = 'Grant permission then click <b>Refresh</b>.';
           showError(error);
         })
         .checkAuthorization();
@@ -390,29 +385,16 @@
       });
     }
 
-      function showPickerAuthorization() {
-        document.getElementById('timeline-container').innerHTML = `
-      <div style="text-align: center; margin-top: 20px;">
-        <p style="font-size: 13px; color: #3c4043; margin-bottom: 12px;">Google requires explicit permission to read this document's history.</p>
+    function showPickerAuthorization() {
+      document.getElementById('timeline-container').innerHTML = `
+        <p>Grant access to document revision history then click <b>Refresh</b>.</p>
         <button class="action" onclick="loadPicker()">Grant Access</button>
-      </div>
-    `;
-      }
+      `;
+    }
 
-      function loadPicker() {
-        document.getElementById('timeline-container').innerHTML = `
-          <div style="text-align: center; margin-top: 20px;">
-            <p style="font-size: 13px; color: #3c4043; margin-bottom: 12px;">Grant permission then click Refresh</p>
-            <button class="action" onclick="onPickerAuthorized()">Refresh Timeline</button>
-          </div>
-        `;
-        google.script.run.openPickerModal();
-      }
-
-      function onPickerAuthorized() {
-        document.getElementById('timeline-container').innerHTML = '<div style="text-align: center; margin-top: 20px;"><p style="font-size: 13px; color: #3c4043;">Loading timeline...</p></div>';
-        fetchRevisionWordCounts();
-      }
+    function loadPicker() {
+      google.script.run.openPickerModal();
+    }
 
     function pollRevisionWordCounts(attemptsLeft, previousCount) {
       clearError();
@@ -434,7 +416,6 @@
           if (error.message && error.message.includes("File not found")) {
             showPickerAuthorization();
           } else {
-            document.getElementById('timeline-container').innerText = 'Grant permission then click Refresh.';
             showError(error);
           }
         })
