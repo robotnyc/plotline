@@ -411,7 +411,7 @@
         .fetchRevisionWordCounts();
     }
 
-    function fetchRevisionWordCounts() {
+    function refreshTimeline() {
       pollRevisionWordCounts(1, -1);
     }
 
@@ -470,18 +470,6 @@
         })
         .fetchRevisionWordCounts(true);
     }
-
-    function fetchHeadingWordCounts() {
-      clearError();
-      document.getElementById('timeline-container').innerText = 'Loading...';
-      google.script.run
-        .withSuccessHandler(function (data) {
-          document.getElementById('timeline-container').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
-        })
-        .withFailureHandler(showError)
-        .getHeadingWordCounts();
-    }
-
   </script>
 </head>
 
@@ -499,7 +487,7 @@
         <h1>Timeline</h1>
         <div>
           <button class="action" onclick="resetZoom()" title="Reset zoom">Reset Zoom</button>
-          <button class="action" onclick="fetchRevisionWordCounts()" title="Refresh timeline" style="margin-right: 12px; margin-left: 8px;">Refresh</button>
+          <button class="action" onclick="refreshTimeline()" title="Refresh timeline" style="margin-right: 12px; margin-left: 8px;">Refresh</button>
         </div>
       </div>
       <div class="block" id="timeline-container"></div>
