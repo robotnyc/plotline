@@ -402,9 +402,10 @@
           }
         })
         .withFailureHandler(function (error) {
-          if (error.message && error.message.includes("File not found")) {
+          if (error.message && (error.message.includes("File not found") || error.message.includes("permission to call drive.revisions.list"))) {
             showPickerAuthorization();
           } else {
+            document.getElementById('timeline-container').innerHTML = '<p>Error loading timeline. Grant permission then click <b>Refresh</b>.</p>';
             showError(error);
           }
         })
