@@ -296,7 +296,9 @@ function fetchRevisionWordCounts(onlyCached = false) {
     const key = REV_WC_KEY_PREFIX + rev.id;
 
     if (rev.wordCount !== undefined) {
-      console.log("Revision: " + rev.id + " Date: " + new Date(rev.date).toLocaleString() + " Word Count: " + rev.wordCount);
+      if (DEBUG_LOGGING) {
+        console.log("Revision: " + rev.id + " Date: " + new Date(rev.date).toLocaleString() + " Word Count: " + rev.wordCount);
+      }
       result.push(rev);
     } else {
       // Absent: fetch, calculate, write new format
