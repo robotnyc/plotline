@@ -2,6 +2,9 @@
  * Google Docs/Drive API wrappers.
  */
 
+const DEBUG_LOGGING = false;
+const REV_WC_KEY_PREFIX = "REV_WC_";
+
 /**
  * Get the current word count of the active document.
  * @returns {number} The word count.
@@ -106,7 +109,7 @@ function getHeadingWordCounts() {
 /**
  * Retrieves revision metadata for a document via Drive.
  * @param {string} fileId - The ID of the file to retrieve revisions for.
- * @return {Array<Object>}
+ * @return {Array<Object>} List of revision objects with id, modifiedTime, and exportLinks.
  */
 function fetchRevisions(fileId) {
   let allRevisions = [];
@@ -124,19 +127,14 @@ function fetchRevisions(fileId) {
         throw new Error("API call to drive.revisions.list failed with error: File not found: " + fileId);
       }
       if (!response.revisions || response.revisions.length === 0) {
-        console.warn("fetchRevisions: no revisions returned on this page.");
+        console.warn("Drive API Revisions: 0");
         break;
       }
-      for (let i = 0; i < response.revisions.length; i++) {
-        // NB: update fields above if more fields are added
-        const revision = response.revisions[i];
-        const date = new Date(revision.modifiedTime);
-        const id = revision.id;
-        console.log(
-          "Revision %s Date: %s",
-          id,
-          date.toLocaleString()
-        );
+      if (DEBUG_LOGGING) {
+        for (let i = 0; i < response.revisions.length; i++) {
+          const revision = response.revisions[i];
+          console.log("Revision " + revision.id + " Date: " + new Date(revision.modifiedTime).toLocaleString());
+        }
       }
       allRevisions = allRevisions.concat(response.revisions);
       pageToken = response.nextPageToken;
@@ -146,100 +144,196 @@ function fetchRevisions(fileId) {
     }
   } while (pageToken);
 
-  console.log("fetchRevisions: found %d revisions.", allRevisions.length);
+  console.log("Drive API Revisions: " + allRevisions.length);
   return allRevisions;
 }
 
-function fetchRevisionWordCounts(onlyCached = false) {
+/**
+ * Migrates legacy cache formats to the individual key format.
+ */
+function migrateRevisionLegacyCachedWordCounts() {
   const documentProperties = PropertiesService.getDocumentProperties();
+  const propertiesMap = documentProperties.getProperties();
 
-  const CACHE_KEY = 'ALL_REVISIONS_CACHE';
-  let cachedDataStr = documentProperties.getProperty(CACHE_KEY);
-  let allRevisionsCache = {};
-  if (cachedDataStr) {
-    try {
-      allRevisionsCache = JSON.parse(cachedDataStr);
-    } catch (e) {
-      console.error("Failed to parse ALL_REVISIONS_CACHE: " + e.message);
+  // Remove individual REV_WC_ keys that do not contain a comma delimited date and word count.
+  const keys = Object.keys(propertiesMap);
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
+    if (key.indexOf(REV_WC_KEY_PREFIX) === 0) {
+      const revId = key.substring(7);
+      const val = propertiesMap[key];
+      if (!val || val.indexOf(',') === -1) {
+        try {
+          documentProperties.deleteProperty(key);
+          console.log("Deleted legacy individual cache for revision " + revId);
+        } catch (e) {
+          console.error("Failed to delete legacy individual cache for revision " + revId + ": " + e.message);
+        }
+      }
     }
   }
 
+  // Migrate ALL_REVISIONS_CACHE
+  if (propertiesMap['ALL_REVISIONS_CACHE']) {
+    let legacyCache = {};
+    try {
+      legacyCache = JSON.parse(propertiesMap['ALL_REVISIONS_CACHE']);
+      let propertiesToSet = {};
+      const ids = Object.keys(legacyCache);
+      for (let i = 0; i < ids.length; i++) {
+        const id = ids[i];
+        const entry = legacyCache[id];
+        if (entry && entry.date && entry.wordCount !== undefined) {
+          propertiesToSet[REV_WC_KEY_PREFIX + id] = entry.date + ',' + entry.wordCount;
+        }
+      }
+      if (Object.keys(propertiesToSet).length > 0) {
+        documentProperties.setProperties(propertiesToSet);
+      }
+    } catch (e) {
+      console.error("Failed to migrate legacy ALL_REVISIONS_CACHE: " + e.message);
+    }
+
+    // Delete after migration
+    try {
+      documentProperties.deleteProperty('ALL_REVISIONS_CACHE');
+      console.log("Deleted ALL_REVISIONS_CACHE key.");
+    } catch (e) {
+      console.error("Failed to delete ALL_REVISIONS_CACHE: " + e.message);
+    }
+  }
+}
+
+/**
+ * Retrieves the cached revision word counts from document properties.
+ *
+ * @returns {Object} Map {"revision id" -> {"id", "date", "wordCount"}}
+ */
+function getRevisionCachedWordCounts() {
+  migrateRevisionLegacyCachedWordCounts();
+
+  const documentProperties = PropertiesService.getDocumentProperties();
+  const propertiesMap = documentProperties.getProperties();
+  const revisionMap = {};
+  const keys = Object.keys(propertiesMap);
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
+    if (key.indexOf(REV_WC_KEY_PREFIX) === 0) {
+      const revId = key.substring(REV_WC_KEY_PREFIX.length);
+      const val = propertiesMap[key];
+      if (val) {
+        const parts = val.split(',');
+        if (parts.length === 2) {
+          revisionMap[revId] = {
+            id: revId,
+            date: parts[0],
+            wordCount: parseInt(parts[1], 10)
+          };
+        } else {
+          console.info("Found invalid cache entry for revision " + revId + ": " + val);
+          try {
+            documentProperties.deleteProperty(key);
+          } catch (e) {
+            console.error("Failed to delete invalid cache entry for revision " + revId + ": " + e.message);
+          }
+        }
+      }
+    }
+  }
+
+  console.log("Cached Revisions: " + Object.keys(revisionMap).length);
+  return revisionMap;
+}
+
+/**
+ * Retrieves the word counts for the document revisions.
+ *
+ * Fetches all revisions from the Drive API and retrieves word counts for any revisions not yet cached,
+ * storing them to individual document property keys.
+ *
+ * If onlyCached is set to true, this function will not fetch new revisions
+ * from the Google Drive API and only return the cached word counts.
+ *
+ * @param {boolean} onlyCached - If true, skip calling the Drive API and only return cached revision data.
+ * @returns {Array<Object>} List of revision objects sorted by date, each containing:
+ *   - id: The revision ID.
+ *   - date: The ISO-8601 modified time string.
+ *   - wordCount: The word count at that revision.
+ */
+function fetchRevisionWordCounts(onlyCached = false) {
+  const revisionDataMap = getRevisionCachedWordCounts();
+
   if (onlyCached) {
-    let revisionWordCounts = Object.values(allRevisionsCache);
-    revisionWordCounts.sort((a, b) => new Date(a.date) - new Date(b.date));
-    return revisionWordCounts;
+    const revisionDataList = Object.values(revisionDataMap);
+    revisionDataList.sort((a, b) => new Date(a.date) - new Date(b.date));
+    console.info("Use only cached data.")
+    return revisionDataList;
   }
 
   const docId = DocumentApp.getActiveDocument().getId();
   const revisions = fetchRevisions(docId);
-  const cachedProperties = documentProperties.getProperties();
 
-  let cacheUpdated = false;
-
+  // 1. Merge revisions from the Drive API into revisionDataMap (supplementing missing ones)
   for (let i = 0; i < revisions.length; i++) {
     const rev = revisions[i];
-
-    if (allRevisionsCache[rev.id] !== undefined) {
-      console.log("Revision %s found in cache with word count %d", rev.id, allRevisionsCache[rev.id].wordCount);
-      continue;
+    if (!revisionDataMap[rev.id]) {
+      revisionDataMap[rev.id] = {
+        id: rev.id,
+        date: rev.modifiedTime
+      };
     }
+  }
 
-    // check if we already have a revision for this day
-    // TODO update to use the latest revision of the day
-    const revDateString = new Date(rev.modifiedTime).toDateString();
-    let dateAlreadyCached = false;
-    const cachedCacheValues = Object.keys(allRevisionsCache).map(k => allRevisionsCache[k]);
-    for (let j = 0; j < cachedCacheValues.length; j++) {
-      if (new Date(cachedCacheValues[j].date).toDateString() === revDateString) {
-        dateAlreadyCached = true;
-        break;
-      }
-    }
-    if (dateAlreadyCached) {
-      console.log("Skipping revision %s because date %s is already cached.", rev.id, revDateString);
-      continue;
-    }
+  const allRevisionsList = Object.values(revisionDataMap);
+  allRevisionsList.sort((a, b) => new Date(a.date) - new Date(b.date));
 
-    let wc;
-    const oldCacheKey = 'REV_WC_' + rev.id;
-    if (cachedProperties[oldCacheKey] !== undefined) {
-      wc = parseInt(cachedProperties[oldCacheKey], 10);
-      console.log("Revision %s found in legacy cache with word count %d", rev.id, wc);
+  // 2. Fetch word counts for any revisions that are not yet cached
+  const result = [];
+  const propertiesToUpdate = {};
+
+  for (let i = 0; i < allRevisionsList.length; i++) {
+    const rev = allRevisionsList[i];
+    const key = REV_WC_KEY_PREFIX + rev.id;
+
+    if (rev.wordCount !== undefined) {
+      console.log("Revision: " + rev.id + " Date: " + new Date(rev.date).toLocaleString() + " Word Count: " + rev.wordCount);
+      result.push(rev);
     } else {
+      // Absent: fetch, calculate, write new format
+      let wc;
       try {
         wc = fetchWordCountForRevision(docId, rev.id);
       } catch (e) {
-        console.error('Failed to get word count for revision %s: %s', rev.id, e.message);
+        console.error('Failed to get word count for revision ' + rev.id + ': ' + e.message);
         throw e;
       }
 
       if (wc === null) {
-        console.warn('No text available for revision %s', rev.id);
+        console.warn('No text available for revision ' + rev.id);
         continue;
       }
-      console.log("Revision %s has word count %d", rev.id, wc);
-    }
 
-    allRevisionsCache[rev.id] = {
-      id: rev.id,
-      date: rev.modifiedTime,
-      wordCount: wc
-    };
-    cacheUpdated = true;
+      console.log("Fetched Revision: " + rev.id + " Date: " + new Date(rev.date).toLocaleString() + " Word Count: " + wc);
+      propertiesToUpdate[key] = rev.date + ',' + wc;
+
+      result.push({
+        id: rev.id,
+        date: rev.date,
+        wordCount: wc
+      });
+    }
   }
 
-  if (cacheUpdated) {
+  if (Object.keys(propertiesToUpdate).length > 0) {
     try {
-      documentProperties.setProperty(CACHE_KEY, JSON.stringify(allRevisionsCache));
+      const documentProperties = PropertiesService.getDocumentProperties();
+      documentProperties.setProperties(propertiesToUpdate);
     } catch (e) {
-      console.error("Failed to save ALL_REVISIONS_CACHE: " + e.message);
+      console.error("Failed to cache word count: " + e.message);
     }
   }
 
-  let revisionWordCounts = Object.values(allRevisionsCache);
-  revisionWordCounts.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-  return revisionWordCounts;
+  return result;
 }
 
 /**
