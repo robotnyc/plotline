@@ -34,6 +34,7 @@ The repository is structured as an [Apps Script](https://developers.google.com/a
 4. Use `onOpen` to add the menu and `showSidebar` to preview the sidebar UI.
 5. Real API implementations live in `Data.gs`.
 6. Use `clasp push --watch --force` when making changes to automatically push local changes (including those to the manifest).
+7. Use `npm run lint` to check for linting errors.
 
 ## Limitations
 
