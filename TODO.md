@@ -1,10 +1,10 @@
 # Plotline Project Roadmap & TODO List
 
-This document outlines suggested improvements, bug fixes, and feature implementations for the Plotline Google Docs Editor Add-on. 
+This document outlines suggested improvements, bug fixes, and feature implementations for the Plotline Google Docs Editor Add-on.
 
 ---
 
-## 1. Critical Bug Fixes & Stability
+## Critical Bug Fixes & Stability
 
 ### 🛑 Fix Properties Size Limit (9KB Limit) & Refactor Cache Handling
 * **Problem:** In [Data.js](file:///home/lucasrangit/projects/plotline/src/Data.js#L153-L243), the revisions cache is serialized as a single JSON object under the key `ALL_REVISIONS_CACHE` inside the `PropertiesService` Document Properties. Apps Script imposes a strict **9KB (9000 bytes)** limit on any single property value. For documents with many revisions, this string will exceed 9KB, resulting in a fatal `Argument too large` error and preventing the add-on from loading.
@@ -25,15 +25,7 @@ This document outlines suggested improvements, bug fixes, and feature implementa
      * **If present:** Parse the value. If it is in the legacy format (only word count), reconstruct the date using the current revision, and update the store with the new format `date,wordCount`.
      * **If absent:** Call `fetchWordCountForRevision(docId, revId)` to retrieve the plain text, calculate the word count, and write the new `modifiedTime,wordCount` format to the property store.
 
-
-### 🔑 Align OAuth Scopes
-* **Problem:** In [submission.md](file:///home/lucasrangit/projects/plotline/submission.md#L9-L13), the documentation mentions `https://www.googleapis.com/auth/drive.readonly` as one of the required scopes. However, the manifest in [appsscript.json](file:///home/lucasrangit/projects/plotline/src/appsscript.json#L14-L19) requests `https://www.googleapis.com/auth/drive.file`.
-* **Why it matters:** Google Workspace Marketplace verification requires scopes to match exactly across the GCP Consent Screen, Workspace Marketplace SDK configuration, and `appsscript.json`. Furthermore, `drive.readonly` is a restricted scope requiring full security review, whereas `drive.file` is a sensitive scope and much easier to get approved.
-* **Solution:** Align all files and settings to use `https://www.googleapis.com/auth/drive.file`. Google Picker (used in `PickerModal.html`) correctly grants access to the current file under the `drive.file` scope, meaning `drive.readonly` is not required.
-
----
-
-## 2. Visual & UX Enhancements (Aesthetics)
+## Visual & UX Enhancements (Aesthetics)
 
 ### 🎨 Modern Sidebar Redesign
 * **Problem:** The current UI uses Google's legacy [add-ons1.css](https://ssl.gstatic.com/docs/script/css/add-ons1.css) stylesheet, resulting in a dated look that does not match modern design systems.
@@ -59,9 +51,7 @@ This document outlines suggested improvements, bug fixes, and feature implementa
 * **Feature:** Add celebratory micro-animations when a user meets their word count target.
   * **Implementation:** Integrate a lightweight client-side library (like `canvas-confetti`) to trigger a confetti explosion inside the sidebar once the goal progress bar hits 100%.
 
----
-
-## 3. Algorithmic & Analytics Improvements
+## Algorithmic & Analytics Improvements
 
 ### 🌐 Local Timezone Handling
 * **Problem:** In [Data.js](file:///home/lucasrangit/projects/plotline/src/Data.js#L189), the server-side code limits revisions to one per day using `new Date(rev.modifiedTime).toDateString()`. This uses the server/script timezone (set to `Europe/Berlin` in `appsscript.json`). For a user writing in another timezone (e.g., Eastern Time), their writing sessions will be grouped into the wrong calendar days.
@@ -75,9 +65,7 @@ This document outlines suggested improvements, bug fixes, and feature implementa
 * **Problem:** In [getHeadingWordCounts()](file:///home/lucasrangit/projects/plotline/src/Data.js#L41-L104), paragraph headings (e.g., `Heading 1: Chapter 1`) are excluded from the word counts of their respective sections, and only the normal body paragraphs are counted. This leads to a minor mismatch between the sum of the sections and the actual total document word count.
 * **Solution:** Provide a toggle switch in the sidebar to include or exclude heading text in the individual chapter counts, or clearly state the exclusion in the UI.
 
----
-
-## 4. New Features
+## New Features
 
 ### 🗂️ Limit Extension to First/Main Tab & Add Warning
 * **Background:** Google Docs recently introduced document Tabs. To prevent notes, research, and deleted words in other tabs from counting toward writing goals, the extension should by design only operate on the main/first tab.
