@@ -1,0 +1,162 @@
+# Google APIs OAuth Verification Checklist & Assessment
+
+This document tracks the OAuth verification checklist and details how the **Plotline** Google Docs Editor Add-on satisfies or addresses each requirement.
+
+---
+
+## 1. Scope Configuration & Justification
+
+- [x] **Least Privilege**
+  - **Status**: Verified.
+  - **Details**: Plotline requests only the following 4 scopes in its [appsscript.json](file:///home/lucasrangit/projects/plotline/src/appsscript.json):
+    1. `https://www.googleapis.com/auth/documents.currentonly` (restricted to the active document)
+    2. `https://www.googleapis.com/auth/drive.file` (restricted to files created or opened by this app)
+    3. `https://www.googleapis.com/auth/script.container.ui` (restricted to editor UI dialogs/sidebars)
+    4. `https://www.googleapis.com/auth/script.external_request` (used for fetching revision data via `UrlFetchApp`)
+  - **Verdict**: The narrowest possible permissions are requested. No broad-access scopes (e.g., full `drive` or `documents`) are requested.
+
+- [x] **Production-Ready**
+  - **Status**: Verified.
+  - **Details**: All scopes correspond to live, user-facing features (sidebar loading, chapter outline rendering, and revision history graphs).
+
+- [x] **Scope Justification**
+  - **Status**: Verified.
+  - **Details**: The justification for each requested scope is documented below:
+    - **`documents.currentonly`**: Used to parse paragraphs, text, and headings within the active Google Doc. This is required to compute section/chapter word counts and track progress towards goals.
+    - **`drive.file`**: Used to query the Google Drive Revisions API (`Drive.Revisions.list` and `Drive.Revisions.get`) for the current active document. This is required to build the historical writing timeline.
+    - **`script.container.ui`**: Used to render the custom HTML sidebar panel (`Sidebar.html`) and dialog modals (`PickerModal.html`) within the document editor interface.
+    - **`script.external_request`**: Used to download revision plain text files via `UrlFetchApp.fetch` from the Google Drive export endpoints. This is required to compute past word counts as the document evolved.
+
+- [ ] **Demo Video**
+  - **Status**: Action Required (Developer Task).
+  - **Details**: A public or unlisted YouTube video must be prepared. It must:
+    - Show the OAuth consent flow showing the client ID in the browser URL bar.
+    - Click "Show all services" on the consent screen to show all requested scopes fully expanded.
+    - Show the entire flow: opening the sidebar, granting file access, loading the timeline, and displaying word counts.
+
+- [ ] **Consent Screen Visibility**
+  - **Status**: Action Required (Developer Task).
+  - **Details**: Ensure the consent screen and expanded scopes are legible and fully captured in the demo video.
+
+- [x] **Scope Matching**
+  - **Status**: Verified.
+  - **Details**: The scopes in the Google Cloud Console OAuth Consent Screen configuration must match the `oauthScopes` list in [appsscript.json](file:///home/lucasrangit/projects/plotline/src/appsscript.json) exactly.
+  > [!WARNING]
+  > Double check that `drive.file` is configured in GCP, not `drive.readonly` (which was mentioned in legacy documentation).
+
+- [ ] **Scope Functionality**
+  - **Status**: Action Required (Demo Verification).
+  - **Details**: The demo video must prove that each scope is functional:
+    - Sidebar rendering -> `script.container.ui`
+    - Live word counts -> `documents.currentonly`
+    - Revisions list and text retrieval -> `drive.file` & `script.external_request`
+
+- [x] **Source Account Impact**
+  - **Status**: Verified (No Impact).
+  - **Details**: Plotline is a read-only productivity utility. It does not create, modify, or delete any files in the user's Google Drive or Google Docs account. Therefore, there are no write/delete side-effects to show.
+
+- [x] **Live Apps**
+  - **Status**: Verified.
+  - **Details**: If the app is already published, new scopes must be tested in a separate staging project/deployment to avoid locking out existing users or hitting unverified quota limits.
+
+---
+
+## 2. App Access & Testing Environment
+
+- [ ] **Active Test Credentials**
+  - **Status**: Action Required (Developer Task).
+  - **Details**: Provide Google reviewers with a link to a test Google Doc (such as the document listed in [TESTS.md](file:///home/lucasrangit/projects/plotline/TESTS.md)) with the add-on shared/installed so they can access the editor environment directly.
+
+- [x] **Zero Authentication Blockers**
+  - **Status**: Verified.
+  - **Details**: The add-on is completely free and relies entirely on Google OAuth authentication. No phone verifications, credit cards, or separate accounts are needed.
+
+- [x] **Clear Integration Access**
+  - **Status**: Verified.
+  - **Details**: The entry point is simple and standard: **Extensions** > **Plotline** > **Open sidebar**. This is detailed in [README.md](file:///home/lucasrangit/projects/plotline/README.md) and [TESTS.md](file:///home/lucasrangit/projects/plotline/TESTS.md).
+
+---
+
+## 3. Privacy Policy Disclosures
+
+- [x] **Data Access**
+  - **Status**: Verified.
+  - **Details**: Disclosed in [docs/privacy.html](file:///home/lucasrangit/projects/plotline/docs/privacy.html#L24-L32) under Section 1 (Data Collection).
+
+- [x] **Data Use**
+  - **Status**: Verified.
+  - **Details**: Disclosed in [docs/privacy.html](file:///home/lucasrangit/projects/plotline/docs/privacy.html#L33-L34) under Section 1 (How We Use Google User Data).
+
+- [x] **Data Transfer**
+  - **Status**: Verified.
+  - **Details**: Disclosed in [docs/privacy.html](file:///home/lucasrangit/projects/plotline/docs/privacy.html#L36-L40) under Section 2 (Data Sharing and Transfer).
+
+- [x] **Data Protection**
+  - **Status**: Verified.
+  - **Details**: Disclosed in [docs/privacy.html](file:///home/lucasrangit/projects/plotline/docs/privacy.html#L51-L54) under Section 4 (Data Protection Mechanisms).
+
+- [x] **Data Retention & Deletion**
+  - **Status**: Verified.
+  - **Details**: Disclosed in [docs/privacy.html](file:///home/lucasrangit/projects/plotline/docs/privacy.html#L42-L49) under Section 3 (Data Storage, Retention, and Deletion).
+
+---
+
+## 4. Data Handling: Limited Use Restrictions
+
+- [x] **Prohibited Data Use**
+  - **Status**: Verified.
+  - **Details**: No Google user data is used for targeted advertising, marketing, profiling, lending, or any other prohibited use case.
+
+- [x] **Prohibited Data Transfer**
+  - **Status**: Verified.
+  - **Details**: No user data is transferred or sold to third parties, data brokers, or advertisers.
+
+---
+
+## 5. AI/ML Model Training Restrictions
+
+- [x] **Prohibited AI/ML Model Training**
+  - **Status**: Verified (N/A).
+  - **Details**: The application does not use, develop, improve, or train any AI/ML models.
+
+- [x] **Prohibited Transfer to Third-Party AI/ML Services**
+  - **Status**: Verified (N/A).
+  - **Details**: No user data is sent to third-party AI/ML services.
+
+- [x] **Limited Use Compliance Statement**
+  - **Status**: Verified (N/A).
+  - **Details**: Although the app does not use AI/ML, the developer can add an affirmative statement to their website/policy for completeness:
+    > *“The use of raw or derived user data received from Workspace APIs will adhere to the Google User Data Policy, including the Limited Use requirements.”*
+
+---
+
+## 6. Prohibited Use Cases
+
+- [x] **Allowed vs. Prohibited Use Cases**
+  - **Status**: Verified.
+  - **Details**: Plotline is a writing productivity visualization tool, which is a fully allowed Google Workspace add-on use case. It does not send commercial emails, warm up email addresses, act as a large-scale CDN, or reward YouTube users for channel interactions.
+
+---
+
+## 7. Data Portability APIs
+
+- [x] **Prominent Disclosure**
+  - **Status**: Verified (N/A).
+  - **Details**: The application does not request access to Google Data Portability APIs.
+
+- [x] **User Benefit**
+  - **Status**: Verified (N/A).
+  - **Details**: Not applicable.
+
+---
+
+## 8. Cloud Application Security Assessment (CASA)
+
+- [x] **CASA**
+  - **Status**: Verified (No CASA Required).
+  - **Details**: CASA security reviews are only required for apps that request **Restricted scopes**.
+    - The Drive scope requested is `https://www.googleapis.com/auth/drive.file`, which is classified as a **Sensitive scope** (not a Restricted scope).
+    - The other scopes requested (`documents.currentonly`, `script.container.ui`, `script.external_request`) are also either Sensitive or Non-sensitive.
+    - Because Plotline does not request any Restricted scopes, **a third-party CASA security assessment is not required**.
+  > [!TIP]
+  > Using `drive.file` instead of `drive.readonly` or `drive` bypasses the yearly paid third-party security audits (CASA), saving significant time and cost.
