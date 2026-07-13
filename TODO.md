@@ -25,6 +25,20 @@ This document outlines suggested improvements, bug fixes, and feature implementa
      * **If present:** Parse the value. If it is in the legacy format (only word count), reconstruct the date using the current revision, and update the store with the new format `date,wordCount`.
      * **If absent:** Call `fetchWordCountForRevision(docId, revId)` to retrieve the plain text, calculate the word count, and write the new `modifiedTime,wordCount` format to the property store.
 
+### ⚠️ Error Handling & Failure Callbacks
+* **Feature:** Implement fallback and error page UI for Apps Script server-side calls.
+* **Tasks:**
+  * Use `withFailureHandler(function)` on all client-side `google.script.run` calls in the sidebar to catch exceptions.
+  * Display a user-friendly error state/card if a server call fails instead of silently failing.
+  * Resources: [Apps Script HTML Service Guide](https://developers.google.com/apps-script/guides/html/reference/run#withFailureHandler)
+
+### 💳 Verify Scope Authorization & Handle Failures
+* **Feature:** Add active scope checks on load.
+* **Tasks:**
+  * Add checks to verify that the user has granted all required OAuth scopes.
+  * If scopes are missing or authorization is revoked, display a clear, descriptive error card inside the sidebar directing the user to grant access.
+  * Resources: [Workspace UI Best Practices - Error Cards](https://developers.google.com/workspace/add-ons/guides/workspace-best-practices#_use_error_cards)
+
 ## Visual & UX Enhancements (Aesthetics)
 
 ### 🎨 Modern Sidebar Redesign
@@ -65,6 +79,10 @@ This document outlines suggested improvements, bug fixes, and feature implementa
 * **Problem:** In [getHeadingWordCounts()](file:///home/lucasrangit/projects/plotline/src/Data.js#L41-L104), paragraph headings (e.g., `Heading 1: Chapter 1`) are excluded from the word counts of their respective sections, and only the normal body paragraphs are counted. This leads to a minor mismatch between the sum of the sections and the actual total document word count.
 * **Solution:** Provide a toggle switch in the sidebar to include or exclude heading text in the individual chapter counts, or clearly state the exclusion in the UI.
 
+### 🕒 Live Document State on Timeline Chart
+* **Problem:** The revision history timeline only shows past saved revisions and does not include the document's unsaved/current word count in the dataset.
+* **Solution:** Append the current/live word count and current timestamp as the final data point on the Chart.js timeline so the user sees their real-time progress relative to historical data.
+
 ## New Features
 
 ### 🗂️ Limit Extension to First/Main Tab & Add Warning
@@ -85,3 +103,10 @@ This document outlines suggested improvements, bug fixes, and feature implementa
 
 ### 📥 Export Capabilities
 * **Feature:** Let users export their writing timeline progress as a CSV file, Google Sheet, or compile a formatted summary report directly into a new document.
+
+### 📅 Document Metadata Stats
+* **Feature:** Add document creation and last-modified dates to the sidebar statistics.
+* **Tasks:**
+  * Query the document's creation date and last modified date.
+  * Display these metrics alongside basic statistics.
+  * Calculate and display a project duration estimate (e.g., "Working on this document for 23 days").

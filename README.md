@@ -41,13 +41,3 @@ The repository is structured as an [Apps Script](https://developers.google.com/a
 1. The add-on is not able to fetch the word count for the very first revision of a document.
 2. The add-on is only able to fetch the word count by section for the current document. Past revisions are only able to fetch the total word count.
 3. Revision history is not reliable. For example, after 3 months Google Drive can merge previous revisions. Unless they are named.
-
-## TODO
-
-1. Add fail handler and error page for all methods. https://developers.google.com/apps-script/guides/html/reference/run#withFailureHandler(Function)
-2. Adjust UTC time for local timezone so changes appear on the correct date.
-3. Add word count goal and display progress towards goal. Divide goal by the number of chapters/headings to determine per-chapter progress.
-4. Add tests to ensure user has enabled the appropriate scope. If not, display a description error message on the sidebar. Using error cards https://developers.google.com/workspace/add-ons/guides/workspace-best-practices#_use_error_cards .
-5. The timeline view only shows past revisions and does not show the current word count as of the current document.
-6. Add streaks feature to motivate writers. Show current streak, longest streak, and potentially a calendar with a heatmap of the days and the amount written.
-7. Add creation date of the document to the stats. As well as last modified date. Could use this to display an estimate of how long the user has been working on the document.
