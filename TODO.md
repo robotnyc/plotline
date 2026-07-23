@@ -39,6 +39,16 @@ This document outlines suggested improvements, bug fixes, and feature implementa
   * If scopes are missing or authorization is revoked, display a clear, descriptive error card inside the sidebar directing the user to grant access.
   * Resources: [Workspace UI Best Practices - Error Cards](https://developers.google.com/workspace/add-ons/guides/workspace-best-practices#_use_error_cards)
 
+## Automatic Refresh of Word Count when Document Changes
+
+* Problem: The current word count is only updated when the user clicks the refresh button.
+* Solution: Use the `onOpen` and `onEdit` triggers to automatically update the word count when the document is opened or edited. onEdit should be efficient and not trigger a full refresh of the word count for every keystroke.
+
+## Assumption that each day gets a revision
+
+* Problem: The current implementation assumes that each day gets a revision. This is not always the case.
+* Solution: Cache word count for the day, replacing the previously cached value. They key assumes a revision ID, but we can use the date as the key.
+
 ## Visual & UX Enhancements (Aesthetics)
 
 ### 🎨 Modern Sidebar Redesign
