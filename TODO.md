@@ -75,10 +75,6 @@ This document outlines suggested improvements, bug fixes, and feature implementa
 * **Feature:** Add celebratory micro-animations when a user meets their word count target.
   * **Implementation:** Integrate a lightweight client-side library (like `canvas-confetti`) to trigger a confetti explosion inside the sidebar once the goal progress bar hits 100%.
 
-## Display user-friendly error messages
-* Problem: Don't allow the user to see any exceptions your code throws. Instead, use `try...catch` statements to intercept exceptions, then display a user-friendly error message with inline text styled in the error class from the add-ons CSS package or an alert dialog.
-* Solution: Authentication errors should reach the Google app so that the user is prompted to grant access to the required scopes however the text that is displayed should be user-friendly and should guide the user on how to resolve the issue.
-
 ## Algorithmic & Analytics Improvements
 
 ### 🌐 Local Timezone Handling
