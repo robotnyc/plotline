@@ -12,7 +12,6 @@ function onOpen() {
   DocumentApp.getUi()
     .createMenu('Plotline')
     .addItem('Open sidebar', 'showSidebar')
-    .addItem('Simulate "File not found"', 'enableSimulation')
     .addToUi();
 }
 
