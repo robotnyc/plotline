@@ -8,6 +8,10 @@
  * presented to users will reflect this limited scope.
  */
 
+function onInstall(e) {
+  onOpen(e);
+}
+
 function onOpen() {
   DocumentApp.getUi()
     .createMenu('Plotline')
@@ -34,7 +38,7 @@ function getPickerConfig() {
 function openPickerModal() {
   const html = HtmlService.createHtmlOutputFromFile('PickerModal')
     .setWidth(800).setHeight(500);
-  DocumentApp.getUi().showModalDialog(html, 'Grant File Access');
+  DocumentApp.getUi().showModalDialog(html, 'Grant file access');
 }
 
 function enableSimulation() {
