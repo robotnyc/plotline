@@ -59,13 +59,8 @@
       align-items: center;
       color: #3c4043;
       border-radius: 0 16px 16px 0;
-      cursor: pointer;
       margin: 2px 0;
       border-left: 3px solid transparent;
-    }
-
-    .outline-item:hover {
-      background-color: #f1f3f4;
     }
 
     .outline-title {
@@ -143,7 +138,7 @@
         // Drive API access / File not found
         else if (msg.indexOf("File not found") !== -1 ||
             msg.indexOf("drive.revisions.list") !== -1) {
-          errorContainer.innerText = "Unable to access the document revision history. Please ensure file access has been granted using the 'Grant Access' button.";
+          errorContainer.innerText = "Unable to access the document revision history. Please ensure file access has been granted using the 'Grant access' button.";
         }
         // Network / HTTP fetch errors
         else if (msg.indexOf("HTTP response code") !== -1 ||
@@ -304,7 +299,7 @@
 
     function render(data) {
       var goalHtml = '<div class="document-total" style="display: flex; align-items: center; justify-content: space-between;">' +
-        '<span>Goal: <input type="number" id="goal-input" value="' + (data.goal || '') + '" onchange="saveGoal(this.value)" style="width: 80px;" title="Set total word count goal" /></span>' +
+        '<span><label for="goal-input">Goal: </label><input type="number" id="goal-input" aria-label="Word count goal" value="' + (data.goal || '') + '" onchange="saveGoal(this.value)" style="width: 80px;" title="Set total word count goal" /></span>' +
         '</div>';
 
       var outlineHtml = goalHtml + '<div class="document-total">Total: ' + data.wordCount + ' words</div>';
@@ -410,7 +405,7 @@
     function showPickerAuthorization() {
       document.getElementById('timeline-container').innerHTML = `
         <p>Grant access to document revision history then click <b>Refresh</b>.</p>
-        <button class="action" onclick="loadPicker()">Grant Access</button>
+        <button class="action" onclick="loadPicker()">Grant access</button>
       `;
     }
 
@@ -485,9 +480,9 @@
           var perMonth = Math.round(perDay * 30.44);
 
           var html = '<ul class="outline-list root-list">';
-          html += '<li class="outline-item"><span class="outline-title">Average per Day</span><span class="outline-count">' + perDay + ' words</span></li>';
-          html += '<li class="outline-item"><span class="outline-title">Average per Week</span><span class="outline-count">' + perWeek + ' words</span></li>';
-          html += '<li class="outline-item"><span class="outline-title">Average per Month</span><span class="outline-count">' + perMonth + ' words</span></li>';
+          html += '<li class="outline-item"><span class="outline-title">Average per day</span><span class="outline-count">' + perDay + ' words</span></li>';
+          html += '<li class="outline-item"><span class="outline-title">Average per week</span><span class="outline-count">' + perWeek + ' words</span></li>';
+          html += '<li class="outline-item"><span class="outline-title">Average per month</span><span class="outline-count">' + perMonth + ' words</span></li>';
 
           if (appData.goal && appData.wordCount !== undefined) {
             var remaining = appData.goal - appData.wordCount;
@@ -520,7 +515,7 @@
   <div class="sidebar branding-below">
     <div id="error-container" class="error"></div>
     <div style="display: flex; align-items: center; justify-content: space-between;">
-      <h1>Word Count</h1>
+      <h1>Word count</h1>
       <button class="action" onclick="refreshOutline()" title="Refresh word counts" style="margin-right: 12px;">Refresh</button>
     </div>
     <div id="outline-container">Loading...</div>
@@ -529,7 +524,7 @@
       <div style="display: flex; align-items: center; justify-content: space-between;">
         <h1>Timeline</h1>
         <div>
-          <button class="action" onclick="resetZoom()" title="Reset zoom">Reset Zoom</button>
+          <button onclick="resetZoom()" title="Reset zoom">Reset zoom</button>
           <button class="action" onclick="refreshTimeline()" title="Refresh timeline" style="margin-right: 12px; margin-left: 8px;">Refresh</button>
         </div>
       </div>
@@ -541,6 +536,10 @@
       <button class="action" onclick="refreshTrends()" title="Refresh trends" style="margin-right: 12px;">Refresh</button>
     </div>
     <div class="block" id="trends-container"></div>
+  </div>
+
+  <div class="sidebar bottom">
+    <span class="gray branding-text">Plotline © 2026 Robotnyc. All rights reserved.</span>
   </div>
 </body>
 
