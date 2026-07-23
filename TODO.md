@@ -124,3 +124,40 @@ This document outlines suggested improvements, bug fixes, and feature implementa
   * Query the document's creation date and last modified date.
   * Display these metrics alongside basic statistics.
   * Calculate and display a project duration estimate (e.g., "Working on this document for 23 days").
+
+## UI Style Guide & Accessibility Compliance (Google Workspace Guidelines)
+
+### 🎨 Button Styling & Primary Actions
+* **Problem:** The sidebar currently renders multiple blue buttons simultaneously (Word Count "Refresh", Timeline "Reset Zoom", Timeline "Refresh", Trends "Refresh") by applying the `.action` class to all of them.
+* **Solution:** Follow the Google Workspace guidelines: "Avoid displaying more than one blue, red, or green button at a time. Gray buttons may appear repeatedly." Remove the `.action` class from secondary buttons (like "Reset Zoom" and "Refresh" buttons) so they render as standard gray buttons.
+
+### ✍️ Sentence Case Text Compliance
+* **Problem:** Several UI texts and dialog titles use Title Case instead of Sentence Case.
+* **Solution:** Convert the following to sentence case:
+  * "Grant Access" -> "Grant access"
+  * "Reset Zoom" -> "Reset zoom"
+  * Dialog title: "Grant File Access" -> "Grant file access" or "File access"
+
+### 🏷️ Missing Sidebar Branding Bar
+* **Problem:** The sidebar has a `branding-below` class which creates a 56px gap at the bottom of the pane, but the actual branding elements are missing, leaving an empty void.
+* **Solution:** Add the standard branding bar at the bottom of `Sidebar.html` inside the body:
+  ```html
+  <div class="sidebar bottom">
+    <span class="gray branding-text">Plotline</span>
+  </div>
+  ```
+
+### 🚀 On-Install Menu Initialization
+* **Problem:** The add-on currently lacks an `onInstall` trigger. Newly installing users won't see the Plotline menu until they reload the document.
+* **Solution:** Add the `onInstall` function to `Code.js` to automatically initialize the add-on menu upon installation:
+  ```javascript
+  function onInstall(e) {
+    onOpen(e);
+  }
+  ```
+
+### ♿ Keyboard & Screen Reader Accessibility
+* **Goal Inputs:** Add an `aria-label="Word count goal"` or associate a proper `<label>` with the `#goal-input` field.
+* **Outline Navigation:** The `.outline-item` elements are styled as clickable (hover effects, `cursor: pointer`), but are static `<div>`s that cannot be focused via keyboard.
+  * *Option 1 (Interactive):* Add `tabindex="0"`, a keypress handler, and server-side logic to select/scroll to the respective heading in the document when clicked or focused + pressed Enter.
+  * *Option 2 (Static):* Remove `cursor: pointer` and hover background states to avoid misleading users.
