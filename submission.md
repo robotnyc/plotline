@@ -27,16 +27,13 @@ This document tracks the OAuth verification checklist and details how the **Plot
     - **`script.container.ui`**: Used to render the custom HTML sidebar panel (`Sidebar.html`) and dialog modals (`PickerModal.html`) within the document editor interface.
     - **`script.external_request`**: Used to download revision plain text files via `UrlFetchApp.fetch` from the Google Drive export endpoints. This is required to compute past word counts as the document evolved.
 
-- [ ] **Demo Video**
-  - **Status**: Action Required (Developer Task).
-  - **Details**: A public or unlisted YouTube video must be prepared. It must:
-    - Show the OAuth consent flow showing the client ID in the browser URL bar.
-    - Click "Show all services" on the consent screen to show all requested scopes fully expanded.
-    - Show the entire flow: opening the sidebar, granting file access, loading the timeline, and displaying word counts.
+- [x] **Demo Video**
+  - **Status**: Verified.
+  - **Details**: The OAuth verification demo video is hosted on YouTube: https://youtu.be/PN-epJixubk
 
-- [ ] **Consent Screen Visibility**
-  - **Status**: Action Required (Developer Task).
-  - **Details**: Ensure the consent screen and expanded scopes are legible and fully captured in the demo video.
+- [x] **Consent Screen Visibility**
+  - **Status**: Verified.
+  - **Details**: The YouTube demo video shows the complete OAuth consent flow, including the Client ID in the browser URL and all requested scopes fully expanded ("Show all services").
 
 - [x] **Scope Matching**
   - **Status**: Verified.
@@ -44,12 +41,12 @@ This document tracks the OAuth verification checklist and details how the **Plot
   > [!WARNING]
   > Double check that `drive.file` is configured in GCP, not `drive.readonly` (which was mentioned in legacy documentation).
 
-- [ ] **Scope Functionality**
-  - **Status**: Action Required (Demo Verification).
-  - **Details**: The demo video must prove that each scope is functional:
-    - Sidebar rendering -> `script.container.ui`
-    - Live word counts -> `documents.currentonly`
-    - Revisions list and text retrieval -> `drive.file` & `script.external_request`
+- [x] **Scope Functionality**
+  - **Status**: Verified.
+  - **Details**: The YouTube demo video demonstrates the full functionality of all requested scopes:
+    - Sidebar rendering: `script.container.ui`
+    - Live word counts: `documents.currentonly`
+    - Revisions retrieval: `drive.file` & `script.external_request`
 
 - [x] **Source Account Impact**
   - **Status**: Verified (No Impact).
@@ -63,9 +60,9 @@ This document tracks the OAuth verification checklist and details how the **Plot
 
 ## 2. App Access & Testing Environment
 
-- [ ] **Active Test Credentials**
-  - **Status**: Action Required (Developer Task).
-  - **Details**: Provide Google reviewers with a link to a test Google Doc (such as the document listed in [TESTS.md](file:///home/lucasrangit/projects/plotline/TESTS.md)) with the add-on shared/installed so they can access the editor environment directly.
+- [x] **Active Test Credentials**
+  - **Status**: Verified.
+  - **Details**: A test Google Doc has been shared with Google reviewers: https://docs.google.com/document/d/1zYtFTu3Qc9NahnPMaZNb8gNDVzgVKNN5ynFWVYN-sJw/edit
 
 - [x] **Zero Authentication Blockers**
   - **Status**: Verified.
