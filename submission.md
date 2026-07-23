@@ -156,4 +156,25 @@ This document tracks the OAuth verification checklist and details how the **Plot
     - The other scopes requested (`documents.currentonly`, `script.container.ui`, `script.external_request`) are also either Sensitive or Non-sensitive.
     - Because Plotline does not request any Restricted scopes, **a third-party CASA security assessment is not required**.
   > [!TIP]
-  > Using `drive.file` instead of `drive.readonly` or `drive` bypasses the yearly paid third-party security audits (CASA), saving significant time and cost.
+---
+
+## 9. Google Workspace Marketplace Store Listing
+
+### Short Description
+Track your writing productivity in Google Docs™ with visualizations. See your word count progress over time with interactive charts to understand habits, set goals, and stay motivated.
+
+*(Note: Maximum length allowed by Google Workspace Marketplace is 160 characters. Recommended concise version (141 chars):)*
+> Track your writing productivity in Google Docs™ with visualizations and interactive charts to analyze habits, set goals, and stay motivated.
+
+### Detailed Description
+Support your writing process with Plotline, a free Google Docs™ add-on for tracking and visualizing your word count progress. Built to help writers, students, and professionals meet their goals, this tool provides powerful insights into your writing habits directly within your document.
+
+This add-on uses Google APIs to view your document's content and revision history in order to calculate your word count. It runs securely on Google Apps Script™ servers, ensuring your documents remain safe and private.
+
+## Features
+
+1. **Granular Word Counting:** View your word count for the entire document or break it down by section and chapter. By design, only the first Document Tab is counted, allowing you to freely store notes, drafts, and edits in separate tabs without skewing your primary statistics.
+2. **Goal Tracking:** Set an optional word count goal to stay motivated and monitor your progress. Your target is automatically and evenly distributed across your document's chapters and sections to help you stay on track. Where you have not met your goal is in gray and where you have exceeded your goal is in green.
+3. **Interactive Progress Timelines:** Visualize your writing journey with dynamic, interactive charts that illustrate how your word count evolves over time.
+4. **Writing Trends:** Monitor your average writing speed and get an estimated completion time for your word count goal, helping you plan your writing sessions effectively.
+
