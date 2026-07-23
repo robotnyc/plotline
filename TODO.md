@@ -75,6 +75,10 @@ This document outlines suggested improvements, bug fixes, and feature implementa
 * **Feature:** Add celebratory micro-animations when a user meets their word count target.
   * **Implementation:** Integrate a lightweight client-side library (like `canvas-confetti`) to trigger a confetti explosion inside the sidebar once the goal progress bar hits 100%.
 
+## Remove Trends Refresh button
+* Problem: It's confusing users to see two Refresh buttons near the timeline chart.
+* Solution: Use only one refresh button for the timeline and trends (which should update when the word count history is updated or when the goal changes).
+
 ## Algorithmic & Analytics Improvements
 
 ### 🌐 Local Timezone Handling
