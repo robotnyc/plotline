@@ -437,11 +437,18 @@
           }
         })
         .withFailureHandler(function (error) {
-          if (error.message && (error.message.includes("File not found") || error.message.includes("permission to call drive.revisions.list"))) {
+          showError(error);
+          var msg = (error && error.message) ? error.message : String(error);
+          var isPermissionError = msg.includes("File not found") ||
+                                  msg.includes("permission") ||
+                                  msg.includes("Authorization") ||
+                                  msg.includes("OAuth") ||
+                                  msg.includes("access_denied") ||
+                                  msg.includes("drive.revisions.list");
+          if (isPermissionError) {
             showPickerAuthorization();
           } else {
-            document.getElementById('timeline-container').innerHTML = '<p>Error loading timeline. Grant permission then click <b>Refresh</b>.</p>';
-            showError(error);
+            document.getElementById('timeline-container').innerHTML = '<p>Error loading timeline. Click <b>Refresh</b> to try again.</p>';
           }
         })
         .fetchRevisionWordCounts();
