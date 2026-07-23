@@ -116,7 +116,6 @@
     #error-container {
       display: none;
       background-color: #fce8e6;
-      color: #d93025;
       padding: 8px 12px;
       margin: 12px;
       border-radius: 4px;
@@ -130,10 +129,44 @@
     var appData = {};
 
     function showError(error) {
-      console.error(error);
       var errorContainer = document.getElementById('error-container');
       if (errorContainer) {
-        errorContainer.innerText = '' + (error.message || error);
+        var msg = (error && error.message) ? error.message : String(error);
+
+        // Authorization & Scope errors
+        if (msg.indexOf("Authorization is required") !== -1 ||
+            msg.indexOf("permission to call") !== -1 ||
+            msg.indexOf("OAuth scope") !== -1 ||
+            msg.indexOf("access_denied") !== -1) {
+          errorContainer.innerText = "Authorization required. Please authorize the add-on to access the document and its revision history.";
+        }
+        // Drive API access / File not found
+        else if (msg.indexOf("File not found") !== -1 ||
+            msg.indexOf("drive.revisions.list") !== -1) {
+          errorContainer.innerText = "Unable to access the document revision history. Please ensure file access has been granted using the 'Grant Access' button.";
+        }
+        // Network / HTTP fetch errors
+        else if (msg.indexOf("HTTP response code") !== -1 ||
+            msg.indexOf("UrlFetchApp") !== -1 ||
+            msg.indexOf("NetworkError") !== -1 ||
+            msg.indexOf("Failed to fetch") !== -1) {
+          errorContainer.innerText = "A temporary network error occurred. Please check your connection and try again.";
+        }
+        // Rate limits / Quota exceeded
+        else if (msg.indexOf("limit exceeded") !== -1 ||
+            msg.indexOf("too many times") !== -1 ||
+            msg.indexOf("Quota exceeded") !== -1) {
+          errorContainer.innerText = "Rate limit exceeded. Please wait a moment before trying again.";
+        }
+        // DocumentApp / empty document errors
+        else if (msg.indexOf("DocumentApp") !== -1 ||
+          msg.indexOf("Cannot read properties of null") !== -1) {
+          errorContainer.innerText = "Unable to read the document content. Please verify that the document is open and has text.";
+        }
+        // Generic fallback
+        else {
+          errorContainer.innerText = "An unexpected error occurred. Please try again, or reload the sidebar if the issue persists.";
+        }
         errorContainer.style.display = 'block';
       }
     }
@@ -382,7 +415,9 @@
     }
 
     function loadPicker() {
-      google.script.run.openPickerModal();
+      google.script.run
+        .withFailureHandler(showError)
+        .openPickerModal();
     }
 
     function pollRevisionWordCounts(attemptsLeft, previousCount) {
@@ -476,7 +511,7 @@
 
 <body onload="onLoad()">
   <div class="sidebar branding-below">
-    <div id="error-container"></div>
+    <div id="error-container" class="error"></div>
     <div style="display: flex; align-items: center; justify-content: space-between;">
       <h1>Word Count</h1>
       <button class="action" onclick="refreshOutline()" title="Refresh word counts" style="margin-right: 12px;">Refresh</button>
