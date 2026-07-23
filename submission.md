@@ -2,6 +2,8 @@
 
 This document tracks the OAuth verification checklist and details how the **Plotline** Google Docs Editor Add-on satisfies or addresses each requirement.
 
+After OAuth verification is passed, follow the checklist in https://developers.google.com/workspace/marketplace/about-app-review to prepare for Marketplace submission and review.
+
 ---
 
 ## 1. Scope Configuration & Justification
