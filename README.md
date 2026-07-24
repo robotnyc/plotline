@@ -1,4 +1,4 @@
-# Plotline Google Docs Editor Add-on
+# Plotline Google Docs™ Editor Add-on
 
 ## Summary
 
