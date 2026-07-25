@@ -65,3 +65,26 @@ Verify that average daily/weekly/monthly writing speeds are calculated and the G
 ### Expected Results
 - Average words per day, week, and month are calculated based on the revision history data.
 - **Goal ETA** is calculated if a goal is set, showing the estimated remaining days (e.g., `X days` or `Reached!`).
+
+
+## Test Case 3: New Empty Document
+
+### Description
+Verify that the sidebar loads correctly on a new empty document and displays the appropriate "Grant Access" message.
+
+### Prerequisites
+- Deploy the latest changes using `npx @google/clasp push`.
+- Open a *new*, empty Google Doc in a browser.
+  `https://docs.google.com/document/d/1w_lK618H0rK-zO3147vJ3s291232487z/edit?addon_dry_run=AAnXSK8a672gs9vaudfYBkFy1WS-D5cYAL0JQwb4x9jw6dLcTX6QfGTIzP3nIwhWmGzIjjzJ2eJKZU-2nxzX_ha2GYhsDhRn5DDKopvgpbURhnQg4ELoLjZgPxruwt9650G7eoZQ2G4e&tab=t.0`
+
+### Steps
+1. Open the document and sign in if prompted.
+2. Click **Extensions** > **Plotline** > **Open sidebar**.
+3. Verify the sidebar opens on the right.
+
+### Expected Results
+- The **Word Count** section displays a "Grant Access" message: "Unable to access document revision history. Please click the 'Grant access' button in the Timeline section below to grant file permission."
+- The **Timeline** section displays a **Grant Access** button.
+- The **Trends** section is empty or shows a "Grant Access" message.
+- No charts are rendered.
+- No JavaScript errors are logged to the Apps Script execution logs.

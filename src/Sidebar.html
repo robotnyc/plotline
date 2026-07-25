@@ -128,17 +128,18 @@
       if (errorContainer) {
         var msg = (error && error.message) ? error.message : String(error);
 
-        // Authorization & Scope errors
-        if (msg.indexOf("Authorization is required") !== -1 ||
+        // Drive API access / File not found / per-file permission
+        if (msg.indexOf("File not found") !== -1 ||
+            msg.indexOf("drive.revisions") !== -1 ||
+            msg.indexOf("Drive.Revisions") !== -1) {
+          errorContainer.innerText = "Unable to access document revision history. Please click the 'Grant access' button in the Timeline section below to grant file permission.";
+        }
+        // General Authorization & Scope errors
+        else if (msg.indexOf("Authorization is required") !== -1 ||
             msg.indexOf("permission to call") !== -1 ||
             msg.indexOf("OAuth scope") !== -1 ||
             msg.indexOf("access_denied") !== -1) {
-          errorContainer.innerText = "Authorization required. Please authorize the add-on to access the document and its revision history.";
-        }
-        // Drive API access / File not found
-        else if (msg.indexOf("File not found") !== -1 ||
-            msg.indexOf("drive.revisions.list") !== -1) {
-          errorContainer.innerText = "Unable to access the document revision history. Please ensure file access has been granted using the 'Grant access' button.";
+          errorContainer.innerText = "Authorization required. Please authorize the add-on to access the document.";
         }
         // Network / HTTP fetch errors
         else if (msg.indexOf("HTTP response code") !== -1 ||
