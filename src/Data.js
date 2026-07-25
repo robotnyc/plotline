@@ -312,6 +312,12 @@ function fetchRevisionWordCounts(onlyCached = false) {
 
       if (wc === null) {
         console.warn('No text available for revision ' + rev.id);
+        try {
+          const documentProperties = PropertiesService.getDocumentProperties();
+          documentProperties.deleteProperty(key);
+        } catch (delErr) {
+          console.error("Failed to delete property for revision " + rev.id + ": " + delErr.message);
+        }
         continue;
       }
 
@@ -359,18 +365,27 @@ function groupRevisionsByHour(revisions) {
  *
  * @param {string} fileId  Drive file ID for the doc
  * @param {string} revisionId  ID of the revision (from `fetchRevisions`)
- * @returns {string} plain‑text snapshot of the document at that revision
+ * @returns {string|null} plain‑text snapshot of the document at that revision, or null if missing/unexportable
  */
 function fetchRevisionText(fileId, revisionId) {
-  const rev = Drive.Revisions.get(fileId, revisionId, {
-    fields: 'exportLinks',
-  });
+  let rev;
+  try {
+    rev = Drive.Revisions.get(fileId, revisionId, {
+      fields: 'exportLinks',
+    });
+  } catch (err) {
+    if (err.message && /revision not found/i.test(err.message)) {
+      console.warn('fetchRevisionText: Revision %s not found (likely deleted or pruned by Google Drive)', revisionId);
+      return null;
+    }
+    throw err;
+  }
 
   // not every revision has an export link; the very first revision is
   // sometimes just the "conversion" or creation marker and can't be
   // exported.  Return null instead of throwing so callers can decide what
   // to do (e.g. skip the revision).
-  if (!rev.exportLinks || !rev.exportLinks['text/plain']) {
+  if (!rev || !rev.exportLinks || !rev.exportLinks['text/plain']) {
     console.warn(
       'fetchRevisionText: no text/plain link for revision %s, maybe binary placeholder',
       revisionId
