@@ -300,7 +300,7 @@
 
     function render(data) {
       var goalHtml = '<div class="document-total" style="display: flex; align-items: center; justify-content: space-between;">' +
-        '<span><label for="goal-input">Goal: </label><input type="number" id="goal-input" aria-label="Word count goal" value="' + (data.goal || '') + '" onchange="saveGoal(this.value)" style="width: 80px;" title="Set total word count goal" /></span>' +
+        '<span><label for="goal-input">Goal: </label><input type="number" min="0" id="goal-input" aria-label="Word count goal" value="' + (data.goal || '') + '" onchange="saveGoal(this.value)" style="width: 80px;" title="Set total word count goal" /></span>' +
         '</div>';
 
       var outlineHtml = goalHtml + '<div class="document-total">Total: ' + data.wordCount + ' words</div>';
