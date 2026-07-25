@@ -19,6 +19,8 @@ This add-on runs securely on Google's own Apps Script servers, ensuring your doc
 
 ## Usage
 
+[![Get it from the Google Workspace Marketplace](docs/gwmBadge.svg)](https://workspace.google.com/marketplace/app/plotline/717313169577)
+
 1. Install the "Plotline" add-on from the Google Workspace Marketplace.
 2. Open a Google Doc and activate the add-on from the "Extensions" menu.
 3. The sidebar will instantly display your writing statistics.

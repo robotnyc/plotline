@@ -189,6 +189,81 @@ footer a {
     text-decoration: none;
 }
 
+/* Google Workspace Marketplace Badge */
+.marketplace-badge-wrapper {
+    margin: 2.2rem 0 1.2rem 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.gwm-badge-img {
+    height: 50px;
+    width: auto;
+    display: block;
+    transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.gwm-badge-img:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+.gwm-badge {
+    display: inline-flex;
+    align-items: center;
+    background-color: #000000;
+    color: #ffffff;
+    padding: 10px 22px;
+    border-radius: 8px;
+    text-decoration: none;
+    border: 1px solid #3c4043;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+.gwm-badge:hover {
+    background-color: #1f1f1f;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
+}
+
+.gwm-badge-icon {
+    flex-shrink: 0;
+    margin-right: 14px;
+}
+
+.gwm-badge-text {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    line-height: 1.25;
+}
+
+.gwm-badge-subtitle {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: #dadce0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.gwm-badge-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.trademark-notice {
+    font-size: 0.75rem;
+    color: #70757a;
+    margin-top: 1rem;
+    line-height: 1.4;
+}
+
 /* Support Page Specifics */
 .content-box {
     background: white;
