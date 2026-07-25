@@ -304,9 +304,15 @@ function fetchRevisionWordCounts(onlyCached = false) {
       // Absent: fetch, calculate, write new format
       let wc;
       try {
+        // Small pacing delay between requests to avoid burst rate limits
+        Utilities.sleep(100);
         wc = fetchWordCountForRevision(docId, rev.id);
       } catch (e) {
         console.error('Failed to get word count for revision ' + rev.id + ': ' + e.message);
+        if (e.message && e.message.indexOf('429') !== -1) {
+          console.warn('HTTP 429 rate limit reached for revision ' + rev.id + '. Saving partial progress and returning cached revisions.');
+          break;
+        }
         throw e;
       }
 
@@ -356,6 +362,34 @@ function groupRevisionsByHour(revisions) {
 
 
 /**
+ * Wrapper for UrlFetchApp.fetch with exponential backoff for HTTP 429 and transient errors.
+ *
+ * @param {string} url
+ * @param {Object} options
+ * @param {number} maxRetries
+ * @returns {GoogleAppsScript.URL_Fetch.HTTPResponse}
+ */
+function fetchUrlWithBackoff(url, options, maxRetries = 3) {
+  let attempt = 0;
+  while (true) {
+    const resp = UrlFetchApp.fetch(url, options);
+    const code = resp.getResponseCode();
+    if (code === 200) {
+      return resp;
+    }
+    if ((code === 429 || code >= 500) && attempt < maxRetries) {
+      attempt++;
+      const backoffMs = Math.pow(2, attempt) * 1000 + Math.floor(Math.random() * 500);
+      console.warn('fetchUrlWithBackoff: Received HTTP ' + code + '. Retrying attempt ' + attempt + '/' + maxRetries + ' after ' + backoffMs + 'ms...');
+      Utilities.sleep(backoffMs);
+      continue;
+    }
+    return resp;
+  }
+}
+
+
+/**
  * Retrieve the plain‑text body of a specific revision.  Google Drive
  * revisions for Google Docs don't include the document text directly;
  * instead the revision resource contains `exportLinks` which point at
@@ -397,7 +431,7 @@ function fetchRevisionText(fileId, revisionId) {
   const url = rev.exportLinks['text/plain'];
   const token = ScriptApp.getOAuthToken();
 
-  const resp = UrlFetchApp.fetch(url, {
+  const resp = fetchUrlWithBackoff(url, {
     headers: {
       Authorization: 'Bearer ' + token,
     },
