@@ -197,6 +197,11 @@ footer a {
     align-items: center;
 }
 
+.marketplace-badge-wrapper img {
+    max-width: 100%;
+    height: auto !important;
+}
+
 .gwm-badge-img {
     height: 50px;
     width: auto;
@@ -292,4 +297,32 @@ footer a {
 
 .center-btn h2 {
     text-align: center;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 600px) {
+    .hero {
+        padding: 1.5rem;
+    }
+
+    .features {
+        padding: 1.5rem;
+    }
+
+    .content-box {
+        padding: 1.5rem;
+    }
+
+    .logo {
+        width: 80px;
+        height: 80px;
+    }
+
+    header {
+        padding: 1.5rem 1rem;
+    }
+
+    main {
+        margin: 1rem auto;
+    }
 }
