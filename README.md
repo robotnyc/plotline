@@ -19,7 +19,9 @@ This add-on runs securely on Google's own Apps Script servers, ensuring your doc
 
 ## Usage
 
-[![Get it from the Google Workspace Marketplace](docs/gwmBadge.svg)](https://workspace.google.com/marketplace/app/plotline/717313169577)
+<a href="https://workspace.google.com/marketplace/app/plotline/717313169577?pann=b" target="_blank" aria-label="Get it from the Google Workspace Marketplace">
+  <img alt="Google Workspace Marketplace badge" alt-text="Get it from the Google Workspace Marketplace" src="https://workspace.google.com/static/img/marketplace/en/gwmBadge.svg?" style="height: 68px">
+</a>
 
 1. Install the "Plotline" add-on from the Google Workspace Marketplace.
 2. Open a Google Doc and activate the add-on from the "Extensions" menu.
