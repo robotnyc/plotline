@@ -197,9 +197,12 @@ footer a {
     align-items: center;
 }
 
+.marketplace-badge-wrapper a {
+    min-width: 300px;
+}
+
 .marketplace-badge-wrapper img {
     max-width: 100%;
-    width: 409px;
     height: auto !important;
 }
 
