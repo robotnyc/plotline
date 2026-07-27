@@ -31,6 +31,8 @@ export default [
         Maps: "readonly",
         SlidesApp: "readonly",
         FormApp: "readonly",
+        // Project functions across files
+        fetchUrlWithBackoff: "readonly",
       },
     },
     rules: {
