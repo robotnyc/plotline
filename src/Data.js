@@ -2,6 +2,8 @@
  * Google Docs/Drive API wrappers.
  */
 
+const { fetchUrlWithBackoff } = require("./Library");
+
 const DEBUG_LOGGING = false;
 const REV_WC_KEY_PREFIX = "REV_WC_";
 
@@ -358,34 +360,6 @@ function fetchRevisionWordCounts(onlyCached = false) {
 function groupRevisionsByHour(revisions) {
   // TODO: implement grouping by 60-minute windows
   return [];
-}
-
-
-/**
- * Wrapper for UrlFetchApp.fetch with exponential backoff for HTTP 429 and transient errors.
- *
- * @param {string} url
- * @param {Object} options
- * @param {number} maxRetries
- * @returns {GoogleAppsScript.URL_Fetch.HTTPResponse}
- */
-function fetchUrlWithBackoff(url, options, maxRetries = 3) {
-  let attempt = 0;
-  while (true) {
-    const resp = UrlFetchApp.fetch(url, options);
-    const code = resp.getResponseCode();
-    if (code === 200) {
-      return resp;
-    }
-    if ((code === 429 || code >= 500) && attempt < maxRetries) {
-      attempt++;
-      const backoffMs = Math.pow(2, attempt) * 1000 + Math.floor(Math.random() * 500);
-      console.warn('fetchUrlWithBackoff: Received HTTP ' + code + '. Retrying attempt ' + attempt + '/' + maxRetries + ' after ' + backoffMs + 'ms...');
-      Utilities.sleep(backoffMs);
-      continue;
-    }
-    return resp;
-  }
 }
 
 
