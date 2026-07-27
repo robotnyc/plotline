@@ -2,8 +2,6 @@
  * Google Docs/Drive API wrappers.
  */
 
-const { fetchUrlWithBackoff } = require("./Library");
-
 const DEBUG_LOGGING = false;
 const REV_WC_KEY_PREFIX = "REV_WC_";
 
