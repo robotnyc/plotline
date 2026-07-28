@@ -18,7 +18,7 @@
       google.script.run
         .withSuccessHandler(createPicker)
         .withFailureHandler(function (err) {
-          document.getElementById('status').innerText = 'Error loading config: ' + err.message;
+          document.getElementById('status').innerText = `Error loading config: ${err.message}`;
         })
         .getPickerConfig();
     }

@@ -124,7 +124,7 @@ function fetchRevisions(fileId) {
       // We check this after the API call to ensure any basic OAuth permission/scope exceptions are thrown first.
       if (PropertiesService.getScriptProperties().getProperty('SIMULATE_FILE_NOT_FOUND') === 'true') {
         console.log("fetchRevisions: Simulating file not found error.");
-        throw new Error("API call to drive.revisions.list failed with error: File not found: " + fileId);
+        throw new Error(`API call to drive.revisions.list failed with error: File not found: ${fileId}`);
       }
       if (!response.revisions || response.revisions.length === 0) {
         console.warn("Drive API Revisions: 0");
@@ -133,7 +133,7 @@ function fetchRevisions(fileId) {
       if (DEBUG_LOGGING) {
         for (let i = 0; i < response.revisions.length; i++) {
           const revision = response.revisions[i];
-          console.log("Revision " + revision.id + " Date: " + new Date(revision.modifiedTime).toLocaleString());
+          console.log(`Revision ${revision.id} Date: ${new Date(revision.modifiedTime).toLocaleString()}`);
         }
       }
       allRevisions = allRevisions.concat(response.revisions);
@@ -144,7 +144,7 @@ function fetchRevisions(fileId) {
     }
   } while (pageToken);
 
-  console.log("Drive API Revisions: " + allRevisions.length);
+  console.log(`Drive API Revisions: ${allRevisions.length}`);
   return allRevisions;
 }
 
@@ -165,9 +165,9 @@ function migrateRevisionLegacyCachedWordCounts() {
       if (!val || val.indexOf(',') === -1) {
         try {
           documentProperties.deleteProperty(key);
-          console.log("Deleted legacy individual cache for revision " + revId);
+          console.log(`Deleted legacy individual cache for revision ${revId}`);
         } catch (e) {
-          console.error("Failed to delete legacy individual cache for revision " + revId + ": " + e.message);
+          console.error(`Failed to delete legacy individual cache for revision ${revId}: ${e.message}`);
         }
       }
     }
@@ -184,14 +184,14 @@ function migrateRevisionLegacyCachedWordCounts() {
         const id = ids[i];
         const entry = legacyCache[id];
         if (entry && entry.date && entry.wordCount !== undefined) {
-          propertiesToSet[REV_WC_KEY_PREFIX + id] = entry.date + ',' + entry.wordCount;
+          propertiesToSet[`${REV_WC_KEY_PREFIX}${id}`] = `${entry.date},${entry.wordCount}`;
         }
       }
       if (Object.keys(propertiesToSet).length > 0) {
         documentProperties.setProperties(propertiesToSet);
       }
     } catch (e) {
-      console.error("Failed to migrate legacy ALL_REVISIONS_CACHE: " + e.message);
+      console.error(`Failed to migrate legacy ALL_REVISIONS_CACHE: ${e.message}`);
     }
 
     // Delete after migration
@@ -199,7 +199,7 @@ function migrateRevisionLegacyCachedWordCounts() {
       documentProperties.deleteProperty('ALL_REVISIONS_CACHE');
       console.log("Deleted ALL_REVISIONS_CACHE key.");
     } catch (e) {
-      console.error("Failed to delete ALL_REVISIONS_CACHE: " + e.message);
+      console.error(`Failed to delete ALL_REVISIONS_CACHE: ${e.message}`);
     }
   }
 }
@@ -230,18 +230,18 @@ function getRevisionCachedWordCounts() {
             wordCount: parseInt(parts[1], 10)
           };
         } else {
-          console.info("Found invalid cache entry for revision " + revId + ": " + val);
+          console.info(`Found invalid cache entry for revision ${revId}: ${val}`);
           try {
             documentProperties.deleteProperty(key);
           } catch (e) {
-            console.error("Failed to delete invalid cache entry for revision " + revId + ": " + e.message);
+            console.error(`Failed to delete invalid cache entry for revision ${revId}: ${e.message}`);
           }
         }
       }
     }
   }
 
-  console.log("Cached Revisions: " + Object.keys(revisionMap).length);
+  console.log(`Cached Revisions: ${Object.keys(revisionMap).length}`);
   return revisionMap;
 }
 
@@ -293,11 +293,11 @@ function fetchRevisionWordCounts(onlyCached = false) {
 
   for (let i = 0; i < allRevisionsList.length; i++) {
     const rev = allRevisionsList[i];
-    const key = REV_WC_KEY_PREFIX + rev.id;
+    const key = `${REV_WC_KEY_PREFIX}${rev.id}`;
 
     if (rev.wordCount !== undefined) {
       if (DEBUG_LOGGING) {
-        console.log("Revision: " + rev.id + " Date: " + new Date(rev.date).toLocaleString() + " Word Count: " + rev.wordCount);
+        console.log(`Revision: ${rev.id} Date: ${new Date(rev.date).toLocaleString()} Word Count: ${rev.wordCount}`);
       }
       result.push(rev);
     } else {
@@ -308,27 +308,27 @@ function fetchRevisionWordCounts(onlyCached = false) {
         Utilities.sleep(100);
         wc = fetchWordCountForRevision(docId, rev.id);
       } catch (e) {
-        console.error('Failed to get word count for revision ' + rev.id + ': ' + e.message);
+        console.error(`Failed to get word count for revision ${rev.id}: ${e.message}`);
         if (e.message && e.message.indexOf('429') !== -1) {
-          console.warn('HTTP 429 rate limit reached for revision ' + rev.id + '. Saving partial progress and returning cached revisions.');
+          console.warn(`HTTP 429 rate limit reached for revision ${rev.id}. Saving partial progress and returning cached revisions.`);
           break;
         }
         throw e;
       }
 
       if (wc === null) {
-        console.warn('No text available for revision ' + rev.id);
+        console.warn(`No text available for revision ${rev.id}`);
         try {
           const documentProperties = PropertiesService.getDocumentProperties();
           documentProperties.deleteProperty(key);
         } catch (delErr) {
-          console.error("Failed to delete property for revision " + rev.id + ": " + delErr.message);
+          console.error(`Failed to delete property for revision ${rev.id}: ${delErr.message}`);
         }
         continue;
       }
 
-      console.log("Fetched Revision: " + rev.id + " Date: " + new Date(rev.date).toLocaleString() + " Word Count: " + wc);
-      propertiesToUpdate[key] = rev.date + ',' + wc;
+      console.log(`Fetched Revision: ${rev.id} Date: ${new Date(rev.date).toLocaleString()} Word Count: ${wc}`);
+      propertiesToUpdate[key] = `${rev.date},${wc}`;
 
       result.push({
         id: rev.id,
@@ -343,7 +343,7 @@ function fetchRevisionWordCounts(onlyCached = false) {
       const documentProperties = PropertiesService.getDocumentProperties();
       documentProperties.setProperties(propertiesToUpdate);
     } catch (e) {
-      console.error("Failed to cache word count: " + e.message);
+      console.error(`Failed to cache word count: ${e.message}`);
     }
   }
 
@@ -405,7 +405,7 @@ function fetchRevisionText(fileId, revisionId) {
 
   const resp = fetchUrlWithBackoff(url, {
     headers: {
-      Authorization: 'Bearer ' + token,
+      Authorization: `Bearer ${token}`,
     },
     muteHttpExceptions: true,
   });
@@ -417,7 +417,7 @@ function fetchRevisionText(fileId, revisionId) {
       const plainText = match[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
       console.error("fetchRevisionText: Failed to fetch URL %s revision %s content: %s", url, revisionId, plainText);
     }
-    throw new Error('HTTP response code: ' + resp.getResponseCode());
+    throw new Error(`HTTP response code: ${resp.getResponseCode()}`);
   }
 
   return resp.getContentText();

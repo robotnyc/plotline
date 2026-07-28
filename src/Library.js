@@ -17,7 +17,7 @@ function fetchUrlWithBackoff(url, options, maxRetries = 3) {
     if ((code === 429 || code >= 500) && attempt < maxRetries) {
       attempt++;
       const backoffMs = Math.pow(2, attempt) * 1000 + Math.floor(Math.random() * 500);
-      console.warn('fetchUrlWithBackoff: Received HTTP ' + code + '. Retrying attempt ' + attempt + '/' + maxRetries + ' after ' + backoffMs + 'ms...');
+      console.warn(`fetchUrlWithBackoff: Received HTTP ${code}. Retrying attempt ${attempt}/${maxRetries} after ${backoffMs}ms...`);
       Utilities.sleep(backoffMs);
       continue;
     }
