@@ -407,7 +407,6 @@ function fetchRevisionText(fileId, revisionId) {
     headers: {
       Authorization: `Bearer ${token}`,
     },
-    muteHttpExceptions: true,
   });
 
   if (resp.getResponseCode() !== 200) {

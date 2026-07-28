@@ -8,8 +8,9 @@
  */
 function fetchUrlWithBackoff(url, options, maxRetries = 3) {
   let attempt = 0;
+  const fetchOptions = Object.assign({}, options, { muteHttpExceptions: true });
   while (true) {
-    const resp = UrlFetchApp.fetch(url, options);
+    const resp = UrlFetchApp.fetch(url, fetchOptions);
     const code = resp.getResponseCode();
     if (code === 200) {
       return resp;
