@@ -11,7 +11,6 @@ Google Apps Script now runs on the V8 engine, which supports ES2017 syntax. Seve
 - **`var` vs `let`/`const`:** In frontend scripts (e.g., `Sidebar.html` and `PickerModal.html`), variables are extensively declared using `var` (e.g., `var html`, `var appData`). Use `let` and `const` for proper block-scoping.
 - **Loops:** You rely heavily on C-style `for` loops (e.g., `for (let i = 0; i < paragraphs.length; i++)` in `Data.js`). Utilize `for...of` loops, or higher-order array methods like `.map()`, `.filter()`, and `.reduce()` for cleaner iteration.
 - **Object Iteration:** In `Data.js` (`migrateRevisionLegacyCachedWordCounts`, `getRevisionCachedWordCounts`), loops are driven by `Object.keys()`. You can streamline these blocks using `Object.entries()` or modern iteration directly on Maps if you refactor the caching logic.
-- **String Interpolation:** Update string concatenations (e.g., `"Revision " + rev.id + " Date: " + new Date(rev.date).toLocaleString()`) to template literals (e.g., `` `Revision ${rev.id} Date: ${new Date(rev.date).toLocaleString()}` ``).
 
 ## 2. Magic Strings and Centralized Constants
 
