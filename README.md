@@ -42,3 +42,7 @@ The repository is structured as an [Apps Script](https://developers.google.com/a
 1. The add-on is not able to fetch the word count for the very first revision of a document.
 2. The add-on is only able to fetch the word count by section for the current document. Past revisions are only able to fetch the total word count.
 3. Revision history is not reliable. For example, after 3 months Google Drive can merge previous revisions unless they are named.
+
+## License
+
+[MIT](LICENSE)
