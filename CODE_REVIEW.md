@@ -38,6 +38,7 @@ The HTML files (`Sidebar.html`, `PickerModal.html`) contain a dense mixture of H
 - **Configuration & Secrets:** Configuration options in `PickerModal.html` refer directly to `GOOGLE_CLOUD_API_KEY` and `GOOGLE_CLOUD_PROJECT_NUMBER`. Ensure proper fallback defaults and validation in your backend configuration getters. Avoid checking any real keys into the codebase.
 - **Error Handling & Quotas:** The backoff retry wrapper in `Library.js` is excellent for handling 429s. However, ensure you properly wait explicitly on `429` retry-after headers if they are provided by the Drive API, rather than purely relying on exponential backoff, to better respect Google's quota limits.
 - **Manifest Permissions (`appsscript.json`):** You have defined narrow scopes like `documents.currentonly` which is great for security. Ensure that the Stackdriver exception logging (`"exceptionLogging": "STACKDRIVER"`) does not inadvertently log PII from document text when an error is thrown.
+- **Production Monitoring:** Since the add-on is distributed to end users, set up robust monitoring using Google Cloud operations suite (formerly Stackdriver) or a third-party service. Actively track error rates (especially `429` rate limits and permissions errors), API latency, and quota exhaustion to proactively address performance regressions or scale issues before users report them.
 
 ---
 *Overall, the integration logic is sound and the backend is well-structured for Apps Script execution.*
