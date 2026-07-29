@@ -11,6 +11,7 @@ Google Apps Script now runs on the V8 engine, which supports ES2017 syntax. Seve
 - **`var` vs `let`/`const`:** In frontend scripts (e.g., `Sidebar.html` and `PickerModal.html`), variables are extensively declared using `var` (e.g., `var html`, `var appData`). Use `let` and `const` for proper block-scoping.
 - **Loops:** You rely heavily on C-style `for` loops (e.g., `for (let i = 0; i < paragraphs.length; i++)` in `Data.js`). Utilize `for...of` loops, or higher-order array methods like `.map()`, `.filter()`, and `.reduce()` for cleaner iteration.
 - **Object Iteration:** In `Data.js` (`migrateRevisionLegacyCachedWordCounts`, `getRevisionCachedWordCounts`), loops are driven by `Object.keys()`. You can streamline these blocks using `Object.entries()` or modern iteration directly on Maps if you refactor the caching logic.
+- **String Interpolation:** Update string concatenations (e.g., `"Revision " + rev.id + " Date: " + new Date(rev.date).toLocaleString()`) to template literals (e.g., `` `Revision ${rev.id} Date: ${new Date(rev.date).toLocaleString()}` ``).
 
 ## 2. Magic Strings and Centralized Constants
 
@@ -30,10 +31,13 @@ The HTML files (`Sidebar.html`, `PickerModal.html`) contain a dense mixture of H
 - **Inline Event Handlers:** Remove inline HTML event handlers (e.g., `onload="onLoad()"`, `onclick="refreshOutline()"`) in favor of standard event listeners attached within your client-side JavaScript block (e.g., `document.getElementById('refreshBtn').addEventListener('click', refreshOutline)`).
 - **DOM Manipulations:** The frequent string concatenation to build HTML nodes (e.g., `var html = '<div class="outline-item"...`) is verbose and prone to XSS risks (though you have an `escapeHtml` function, manual concatenation is still brittle). Consider using standard DOM methods (`document.createElement`) or a lightweight UI templating system to generate complex dynamic lists.
 
-## 4. General Best Practices
+## 4. Apps Script Production & General Best Practices
 
-- **Configuration:** Configuration options in `PickerModal.html` refer directly to `GOOGLE_CLOUD_API_KEY` and `GOOGLE_CLOUD_PROJECT_NUMBER`. Ensure proper fallback defaults and validation in your backend configuration getters.
-- **Error Handling:** The backoff retry wrapper in `Library.js` is great, but ensure you properly handle non-fatal transient Drive API errors explicitly before resorting to random backoffs. Wait explicitly on `429` retry-after headers if they are provided.
+- **Missing License:** The repository does not include a `LICENSE` file. For an open-source or publicly distributed project, adding a clear license (e.g., MIT, Apache 2.0) is crucial to clarify usage and distribution rights.
+- **Automated Testing Suite:** The project currently relies on manual end-to-end browser tests (`TESTS.md`, `browser-test` skill). There is no automated unit testing suite (e.g., using Jest or Mocha with Clasp) for backend utility functions like heading parsing or math calculations. Adding unit tests will drastically improve maintainability.
+- **Configuration & Secrets:** Configuration options in `PickerModal.html` refer directly to `GOOGLE_CLOUD_API_KEY` and `GOOGLE_CLOUD_PROJECT_NUMBER`. Ensure proper fallback defaults and validation in your backend configuration getters. Avoid checking any real keys into the codebase.
+- **Error Handling & Quotas:** The backoff retry wrapper in `Library.js` is excellent for handling 429s. However, ensure you properly wait explicitly on `429` retry-after headers if they are provided by the Drive API, rather than purely relying on exponential backoff, to better respect Google's quota limits.
+- **Manifest Permissions (`appsscript.json`):** You have defined narrow scopes like `documents.currentonly` which is great for security. Ensure that the Stackdriver exception logging (`"exceptionLogging": "STACKDRIVER"`) does not inadvertently log PII from document text when an error is thrown.
 
 ---
 *Overall, the integration logic is sound and the backend is well-structured for Apps Script execution.*
