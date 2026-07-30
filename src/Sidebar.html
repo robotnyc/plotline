@@ -447,7 +447,7 @@
             document.getElementById('timeline-container').innerHTML = '<p>Error loading timeline. Click <b>Refresh</b> to try again.</p>';
           }
         })
-        .fetchRevisionWordCounts();
+        .getRevisionWordCounts();
     }
 
     function refreshTimeline() {
@@ -507,7 +507,7 @@
           trendsDiv.innerText = '';
           showError(error);
         })
-        .fetchRevisionWordCounts(true);
+        .getRevisionWordCounts(true);
     }
   </script>
 </head>

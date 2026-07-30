@@ -6,43 +6,45 @@ const DEBUG_LOGGING = false;
 const REV_WC_KEY_PREFIX = "REV_WC_";
 
 /**
- * Get the current word count of the active document.
+ * Get the current word count of a document.
+ * @param {GoogleAppsScript.Document.Document} doc - Document object.
  * @returns {number} The word count.
  */
-function getCurrentWordCount() {
-  const doc = DocumentApp.getActiveDocument();
+function getDocumentWordCount(doc) {
   const text = doc.getBody().getText();
   return text.trim().split(/\s+/).filter(Boolean).length;
 }
 
 /**
  * Retrieves the user-set word count goal.
+ * @param {GoogleAppsScript.Properties.PropertiesService} propertiesService - PropertiesService instance.
  * @returns {number|null} The word count goal, or null if not set.
  */
-function getWordCountGoal() {
-  const documentProperties = PropertiesService.getDocumentProperties();
-  const goal = documentProperties.getProperty('WORD_COUNT_GOAL');
+function getWordCountGoalFromProperties(propertiesService) {
+  const goal = propertiesService.getDocumentProperties().getProperty('WORD_COUNT_GOAL');
   return goal ? parseInt(goal, 10) : null;
 }
 
 /**
  * Saves the user-set word count goal.
+ * @param {GoogleAppsScript.Properties.PropertiesService} propertiesService - PropertiesService instance.
  * @param {number|string} goal - The word count goal.
  */
-function setWordCountGoal(goal) {
-  const documentProperties = PropertiesService.getDocumentProperties();
+function setWordCountGoalInProperties(propertiesService, goal) {
+  const props = propertiesService.getDocumentProperties();
   if (goal) {
-    documentProperties.setProperty('WORD_COUNT_GOAL', goal.toString());
+    props.setProperty('WORD_COUNT_GOAL', goal.toString());
   } else {
-    documentProperties.deleteProperty('WORD_COUNT_GOAL');
+    props.deleteProperty('WORD_COUNT_GOAL');
   }
 }
 
 /**
  * Get the word counts heading.
+ * @param {GoogleAppsScript.Document.Document} doc - Document object.
+ * @returns {Object} Root heading word counts structure.
  */
-function getHeadingWordCounts() {
-  const doc = DocumentApp.getActiveDocument();
+function getHeadingWordCountsFromDoc(doc) {
   const body = doc.getBody();
   const paragraphs = body.getParagraphs();
 
@@ -108,23 +110,25 @@ function getHeadingWordCounts() {
 
 /**
  * Retrieves revision metadata for a document via Drive.
- * @param {string} fileId - The ID of the file to retrieve revisions for.
+ * @param {string} docId - The ID of the document to retrieve revisions for.
+ * @param {Object} drive - Drive API service instance.
+ * @param {GoogleAppsScript.Properties.PropertiesService} propertiesService - PropertiesService instance.
  * @return {Array<Object>} List of revision objects with id, modifiedTime, and exportLinks.
  */
-function fetchRevisions(fileId) {
+function fetchRevisions(docId, drive, propertiesService) {
   let allRevisions = [];
   let pageToken = null;
   do {
     try {
-      const response = Drive.Revisions.list(fileId, {
+      const response = drive.Revisions.list(docId, {
         fields: "revisions(id,modifiedTime,exportLinks),nextPageToken",
         pageToken: pageToken,
       });
       // SIMULATE_FILE_NOT_FOUND is used to test the file not found error case. Google API's do not support revoking access to a file.
       // We check this after the API call to ensure any basic OAuth permission/scope exceptions are thrown first.
-      if (PropertiesService.getScriptProperties().getProperty('SIMULATE_FILE_NOT_FOUND') === 'true') {
+      if (propertiesService.getScriptProperties().getProperty('SIMULATE_FILE_NOT_FOUND') === 'true') {
         console.log("fetchRevisions: Simulating file not found error.");
-        throw new Error(`API call to drive.revisions.list failed with error: File not found: ${fileId}`);
+        throw new Error(`API call to drive.revisions.list failed with error: File not found: ${docId}`);
       }
       if (!response.revisions || response.revisions.length === 0) {
         console.warn("Drive API Revisions: 0");
@@ -150,13 +154,13 @@ function fetchRevisions(fileId) {
 
 /**
  * Migrates legacy cache formats to the individual key format.
+ * @param {GoogleAppsScript.Properties.PropertiesService} propertiesService - PropertiesService instance.
  */
-function migrateRevisionLegacyCachedWordCounts() {
-  const documentProperties = PropertiesService.getDocumentProperties();
+function migrateRevisionLegacyCachedWordCounts(propertiesService) {
+  const documentProperties = propertiesService.getDocumentProperties();
   const propertiesMap = documentProperties.getProperties();
 
-  // Remove individual REV_WC_ keys that do not contain a comma delimited date and word count.
-  const keys = Object.keys(propertiesMap);
+  // Remove individual REV_WC_ keys that do not contain a comma delimited date and word count.  const keys = Object.keys(propertiesMap);
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
     if (key.indexOf(REV_WC_KEY_PREFIX) === 0) {
@@ -206,13 +210,13 @@ function migrateRevisionLegacyCachedWordCounts() {
 
 /**
  * Retrieves the cached revision word counts from document properties.
- *
+ * @param {GoogleAppsScript.Properties.PropertiesService} propertiesService - PropertiesService instance.
  * @returns {Object} Map {"revision id" -> {"id", "date", "wordCount"}}
  */
-function getRevisionCachedWordCounts() {
-  migrateRevisionLegacyCachedWordCounts();
+function getCachedRevisionWordCounts(propertiesService) {
+  migrateRevisionLegacyCachedWordCounts(propertiesService);
 
-  const documentProperties = PropertiesService.getDocumentProperties();
+  const documentProperties = propertiesService.getDocumentProperties();
   const propertiesMap = documentProperties.getProperties();
   const revisionMap = {};
   const keys = Object.keys(propertiesMap);
@@ -247,31 +251,29 @@ function getRevisionCachedWordCounts() {
 
 /**
  * Retrieves the word counts for the document revisions.
- *
- * Fetches all revisions from the Drive API and retrieves word counts for any revisions not yet cached,
- * storing them to individual document property keys.
- *
- * If onlyCached is set to true, this function will not fetch new revisions
- * from the Google Drive API and only return the cached word counts.
- *
  * @param {boolean} onlyCached - If true, skip calling the Drive API and only return cached revision data.
+ * @param {string} docId - File ID of the document.
+ * @param {GoogleAppsScript.Properties.PropertiesService} propertiesService - PropertiesService instance.
+ * @param {Object} drive - Google Drive service instance.
+ * @param {Object} scriptApp - ScriptApp service instance.
+ * @param {Object} utilities - Utilities service instance.
+ * @param {Object} urlFetchApp - UrlFetchApp service instance.
  * @returns {Array<Object>} List of revision objects sorted by date, each containing:
  *   - id: The revision ID.
  *   - date: The ISO-8601 modified time string.
  *   - wordCount: The word count at that revision.
  */
-function fetchRevisionWordCounts(onlyCached = false) {
-  const revisionDataMap = getRevisionCachedWordCounts();
+function getDocumentRevisionWordCounts(onlyCached, docId, propertiesService, drive, scriptApp, utilities, urlFetchApp) {
+  const revisionDataMap = getCachedRevisionWordCounts(propertiesService);
 
   if (onlyCached) {
     const revisionDataList = Object.values(revisionDataMap);
     revisionDataList.sort((a, b) => new Date(a.date) - new Date(b.date));
-    console.info("Use only cached data.")
+    console.info("Use only cached data.");
     return revisionDataList;
   }
 
-  const docId = DocumentApp.getActiveDocument().getId();
-  const revisions = fetchRevisions(docId);
+  const revisions = fetchRevisions(docId, drive, propertiesService);
 
   // 1. Merge revisions from the Drive API into revisionDataMap (supplementing missing ones)
   for (let i = 0; i < revisions.length; i++) {
@@ -290,6 +292,7 @@ function fetchRevisionWordCounts(onlyCached = false) {
   // 2. Fetch word counts for any revisions that are not yet cached
   const result = [];
   const propertiesToUpdate = {};
+  const documentProperties = propertiesService.getDocumentProperties();
 
   for (let i = 0; i < allRevisionsList.length; i++) {
     const rev = allRevisionsList[i];
@@ -305,8 +308,8 @@ function fetchRevisionWordCounts(onlyCached = false) {
       let wc;
       try {
         // Small pacing delay between requests to avoid burst rate limits
-        Utilities.sleep(100);
-        wc = fetchWordCountForRevision(docId, rev.id);
+        utilities.sleep(100);
+        wc = fetchWordCountForRevision(docId, rev.id, drive, scriptApp, urlFetchApp, utilities);
       } catch (e) {
         console.error(`Failed to get word count for revision ${rev.id}: ${e.message}`);
         if (e.message && e.message.indexOf('429') !== -1) {
@@ -319,7 +322,6 @@ function fetchRevisionWordCounts(onlyCached = false) {
       if (wc === null) {
         console.warn(`No text available for revision ${rev.id}`);
         try {
-          const documentProperties = PropertiesService.getDocumentProperties();
           documentProperties.deleteProperty(key);
         } catch (delErr) {
           console.error(`Failed to delete property for revision ${rev.id}: ${delErr.message}`);
@@ -340,7 +342,6 @@ function fetchRevisionWordCounts(onlyCached = false) {
 
   if (Object.keys(propertiesToUpdate).length > 0) {
     try {
-      const documentProperties = PropertiesService.getDocumentProperties();
       documentProperties.setProperties(propertiesToUpdate);
     } catch (e) {
       console.error(`Failed to cache word count: ${e.message}`);
@@ -351,32 +352,25 @@ function fetchRevisionWordCounts(onlyCached = false) {
 }
 
 /**
- * Compute session groups out of a revision list.
- * @param {Array<Object>} revisions
- * @return {Array<Object>}
- */
-function groupRevisionsByHour(revisions) {
-  // TODO: implement grouping by 60-minute windows
-  return [];
-}
-
-
-/**
- * Retrieve the plain‑text body of a specific revision.  Google Drive
+ * Retrieve the plain‑text body of a specific revision. Google Drive
  * revisions for Google Docs don't include the document text directly;
  * instead the revision resource contains `exportLinks` which point at
  * endpoints that will render that revision in a given MIME type.  We
  * fetch the `text/plain` export and return it so callers can compute a
  * word count or diff the string.
  *
- * @param {string} fileId  Drive file ID for the doc
- * @param {string} revisionId  ID of the revision (from `fetchRevisions`)
- * @returns {string|null} plain‑text snapshot of the document at that revision, or null if missing/unexportable
+ * @param {string} docId - Drive document ID.
+ * @param {string} revisionId - ID of the revision.
+ * @param {Object} drive - Google Drive service instance.
+ * @param {Object} scriptApp - ScriptApp service instance.
+ * @param {Object} urlFetchApp - UrlFetchApp service instance.
+ * @param {Object} utilities - Utilities service instance.
+ * @returns {string|null} plain‑text snapshot, or null if missing/unexportable.
  */
-function fetchRevisionText(fileId, revisionId) {
+function fetchRevisionText(docId, revisionId, drive, scriptApp, urlFetchApp, utilities) {
   let rev;
   try {
-    rev = Drive.Revisions.get(fileId, revisionId, {
+    rev = drive.Revisions.get(docId, revisionId, {
       fields: 'exportLinks',
     });
   } catch (err) {
@@ -401,13 +395,19 @@ function fetchRevisionText(fileId, revisionId) {
 
   // text/plain MIME type is used because it does not contain images. However this breaks the ability to calculate word count by heading.
   const url = rev.exportLinks['text/plain'];
-  const token = ScriptApp.getOAuthToken();
+  const token = scriptApp.getOAuthToken();
 
-  const resp = fetchUrlWithBackoff(url, {
-    headers: {
-      Authorization: `Bearer ${token}`,
+  const resp = fetchUrlWithBackoff(
+    url,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     },
-  });
+    3,
+    urlFetchApp,
+    utilities
+  );
 
   if (resp.getResponseCode() !== 200) {
     const html = resp.getContentText();
@@ -422,15 +422,17 @@ function fetchRevisionText(fileId, revisionId) {
   return resp.getContentText();
 }
 
-
 /**
  * Get word count for file revision by ID.
- *
- * @param {string} fileId
+ * @param {string} docId
  * @param {string} revisionId
- * @returns {number} word count, or null if text is not available
+ * @param {Object} drive
+ * @param {Object} scriptApp
+ * @param {Object} urlFetchApp
+ * @param {Object} utilities
+ * @returns {number|null} word count, or null if text is not available
  */
-function fetchWordCountForRevision(fileId, revisionId) {
-  const txt = fetchRevisionText(fileId, revisionId);
+function fetchWordCountForRevision(docId, revisionId, drive, scriptApp, urlFetchApp, utilities) {
+  const txt = fetchRevisionText(docId, revisionId, drive, scriptApp, urlFetchApp, utilities);
   return txt ? txt.trim().split(/\s+/).filter(Boolean).length : null;
 }

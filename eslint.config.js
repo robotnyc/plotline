@@ -33,6 +33,16 @@ export default [
         FormApp: "readonly",
         // Project functions across files
         fetchUrlWithBackoff: "readonly",
+        getDocumentWordCount: "readonly",
+        getWordCountGoalFromProperties: "readonly",
+        setWordCountGoalInProperties: "readonly",
+        getHeadingWordCountsFromDoc: "readonly",
+        fetchRevisions: "readonly",
+        migrateRevisionLegacyCachedWordCounts: "readonly",
+        getCachedRevisionWordCounts: "readonly",
+        getDocumentRevisionWordCounts: "readonly",
+        fetchRevisionText: "readonly",
+        fetchWordCountForRevision: "readonly",
       },
     },
     rules: {

@@ -62,3 +62,26 @@ function checkAuthorization() {
   return true;
 }
 
+/**
+ * Entry points delegating to Data.js functions with GAS objects passed as inputs.
+ */
+
+function getCurrentWordCount() {
+  return getDocumentWordCount(DocumentApp.getActiveDocument());
+}
+
+function getWordCountGoal() {
+  return getWordCountGoalFromProperties(PropertiesService);
+}
+
+function setWordCountGoal(goal) {
+  return setWordCountGoalInProperties(PropertiesService, goal);
+}
+
+function getHeadingWordCounts() {
+  return getHeadingWordCountsFromDoc(DocumentApp.getActiveDocument());
+}
+
+function getRevisionWordCounts(onlyCached = false) {
+  return getDocumentRevisionWordCounts(onlyCached, DocumentApp.getActiveDocument().getId(), PropertiesService, Drive, ScriptApp, Utilities, UrlFetchApp);
+}

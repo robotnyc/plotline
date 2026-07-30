@@ -14,7 +14,7 @@ This document outlines suggested improvements, bug fixes, and feature implementa
   2. **Backward Compatibility / Legacy Support:** If a key `REV_WC_<revisionId>` contains only a number (the legacy format), dynamically pair it with the revision's `modifiedTime` from the Drive API list, and write it back to update the cache.
   3. **Cleanup:** Delete the obsolete `ALL_REVISIONS_CACHE` key entirely to reclaim space.
 
-* **Simplified `fetchRevisionWordCounts()` Execution Flow:**
+* **Simplified `getRevisionWordCounts()` Execution Flow:**
   1. **Load Cache Once:** Fetch all document properties in a single batch call:
      ```javascript
      const cachedProperties = PropertiesService.getDocumentProperties().getProperties();
@@ -83,7 +83,7 @@ This document outlines suggested improvements, bug fixes, and feature implementa
 
 ### 🌐 Local Timezone Handling
 * **Problem:** In [Data.js](file:///home/lucasrangit/projects/plotline/src/Data.js#L189), the server-side code limits revisions to one per day using `new Date(rev.modifiedTime).toDateString()`. This uses the server/script timezone (set to `Europe/Berlin` in `appsscript.json`). For a user writing in another timezone (e.g., Eastern Time), their writing sessions will be grouped into the wrong calendar days.
-* **Solution:** Pass the user's browser timezone offset or timezone identifier (e.g., `Intl.DateTimeFormat().resolvedOptions().timeZone`) from the client to the server during the `fetchRevisionWordCounts` call, and adjust date boundary evaluations accordingly.
+* **Solution:** Pass the user's browser timezone offset or timezone identifier (e.g., `Intl.DateTimeFormat().resolvedOptions().timeZone`) from the client to the server during the `getRevisionWordCounts` call, and adjust date boundary evaluations accordingly.
 
 ### ⏱️ Rolling Window Trends
 * **Problem:** The average daily, weekly, and monthly writing trends are calculated by dividing the total net words written by the total days since the *first* document revision. If a document is weeks or months old but has long periods of inactivity, the average drops to near zero, causing the Goal ETA projection to become completely incorrect.
