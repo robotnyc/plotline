@@ -160,7 +160,8 @@ function migrateRevisionLegacyCachedWordCounts(propertiesService) {
   const documentProperties = propertiesService.getDocumentProperties();
   const propertiesMap = documentProperties.getProperties();
 
-  // Remove individual REV_WC_ keys that do not contain a comma delimited date and word count.  const keys = Object.keys(propertiesMap);
+  // Remove individual REV_WC_ keys that do not contain a comma delimited date and word count.
+  const keys = Object.keys(propertiesMap);
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
     if (key.indexOf(REV_WC_KEY_PREFIX) === 0) {
