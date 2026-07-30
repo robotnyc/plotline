@@ -23,7 +23,7 @@ This add-on runs securely on Google's own Apps Script servers, ensuring your doc
   <img alt="Google Workspace Marketplace badge" alt-text="Get it from the Google Workspace Marketplace" src="https://workspace.google.com/static/img/marketplace/en/gwmBadge.svg?" style="height: 68px">
 </a>
 
-Open a document in Google Docs™ and select Extensions > Plotline > Open sidebar to start tracking your word count. The sidebar will instantly display your writing statistics unless additional permissions are needed. Set your word count goal if you have one. Refresh the Timeline chart and Trends to start tracking your writing progress. Refresh the Timeline often if you want a more granular word count history, as Google Docs™ may merge or drop past revisions.
+Open a document in Google Docs™ and select Extensions > Plotline > Open sidebar to start tracking your word count. The sidebar will instantly display your writing statistics unless additional permissions are needed. Set your word count goal if you have one. Refresh the Timeline chart and Trends to start tracking your writing progress. Refresh the Timeline often if you want a more granular word count history, as Google Docs™ may merge or drop past revisions. If you continue to have permission issues, you have to sign out of all other Google accounts before authorizing this add-on. Guest mode also works, but Incognito mode does not work because it blocks cookies.
 
 ## Development
 
