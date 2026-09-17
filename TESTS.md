@@ -21,7 +21,7 @@ Verify that the sidebar loads correctly, establishes communication with the Apps
 4. Verify that the **Word Count** section loads.
 
 ### Expected Results
-- **Total Word Count**: 442 words (Goal: 1000).
+- **Total Word Count**: Not displayed because headings are present in the document.
 - **Outline & Individual target counts**:
   - **REPORT TITLE**: 416 / 1000 words
   - **Empty Section**: 0 / 167 words

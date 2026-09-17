@@ -303,7 +303,11 @@
         `<span><label for="goal-input">Goal: </label><input type="number" min="0" id="goal-input" aria-label="Word count goal" value="${data.goal || ''}" onchange="saveGoal(this.value)" style="width: 80px;" title="Set total word count goal" /></span>` +
         '</div>';
 
-      var outlineHtml = `${goalHtml}<div class="document-total">Total: ${data.wordCount} words</div>`;
+      var outlineHtml = goalHtml;
+      var hasHeadings = data.headingWordCounts && data.headingWordCounts.subheadings && data.headingWordCounts.subheadings.length > 0;
+      if (!hasHeadings) {
+        outlineHtml += `<div class="document-total">Total: ${data.wordCount} words</div>`;
+      }
 
       if (data.goal) {
         var pct = Math.round((data.wordCount / data.goal) * 100);
